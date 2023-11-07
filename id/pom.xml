@@ -9,8 +9,8 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>jdentifiers-core</artifactId>
-  <name>Jdentifiers :: Core</name>
+  <artifactId>jdentifiers-id</artifactId>
+  <name>Jdentifiers :: Identifiers</name>
 
   <dependencies>
     <dependency>
