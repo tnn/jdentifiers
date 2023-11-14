@@ -1,5 +1,6 @@
 package org.pkgd.jdentifiers.id;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -7,7 +8,6 @@ import java.util.Objects;
  */
 public class LID<T extends IDAble> extends VariableLengthID {
     private static final int LID_STRING_LENGTH = 8;
-
     private final int bits;
 
     private LID(int bits) {
@@ -18,7 +18,7 @@ public class LID<T extends IDAble> extends VariableLengthID {
         return new LID<>(bits);
     }
 
-    public static <T extends IDAble> LID<T> fromHexString(final CharSequence idSequence) {
+    public static <T extends IDAble> LID<T> fromString(final CharSequence idSequence) {
         if (idSequence.length() != LID_STRING_LENGTH) {
             throw new IllegalArgumentException("Illegal LID hex string: " + idSequence);
         }
@@ -76,8 +76,8 @@ public class LID<T extends IDAble> extends VariableLengthID {
     }
 
     @Override
-    public String toHexString() {
-        final char[] idChars = new char[LID_STRING_LENGTH];
+    public String toString() {
+        final byte[] idChars = new byte[LID_STRING_LENGTH];
 
         idChars[0] = HEX_DIGITS[(bits & 0xf0000000) >>> 28];
         idChars[1] = HEX_DIGITS[(bits & 0x0f000000) >>> 24];
@@ -88,6 +88,6 @@ public class LID<T extends IDAble> extends VariableLengthID {
         idChars[6] = HEX_DIGITS[(bits & 0x000000f0) >>> 4];
         idChars[7] = HEX_DIGITS[bits & 0x0000000f];
 
-        return new String(idChars);
+        return new String(idChars, StandardCharsets.ISO_8859_1);
     }
 }

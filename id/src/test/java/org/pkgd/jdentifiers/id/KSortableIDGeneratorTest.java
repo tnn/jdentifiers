@@ -12,7 +12,7 @@ class KSortableIDGeneratorTest {
 
     @BeforeAll
     static void setupSpec() {
-        generator = new KSortableIDGenerator(Clock.systemUTC());
+        generator = new KSortableIDGenerator(Clock.systemUTC(), 1785167810);
     }
 
     @Test

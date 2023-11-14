@@ -42,6 +42,10 @@ public class GID<T extends IDAble> implements Comparable<GID<T>> {
         return (GID<I>) id;
     }
 
+    public static <T extends IDAble> GID<T> fromHexString(String uuidStr) {
+        return new GID<>(UUID.fromString(uuidStr));
+    }
+
 
     public UUID asUUID() {
         return uuid;
@@ -66,5 +70,9 @@ public class GID<T extends IDAble> implements Comparable<GID<T>> {
     @Override
     public String toString() {
         return uuid.toString();
+    }
+
+    public String toHexString() {
+        return toString();
     }
 }

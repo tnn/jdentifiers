@@ -149,6 +149,21 @@ There currently isn't a common method between the implementations that isn't alr
 Comparable)
 or base classes (Object).
 
+## Encoding (hex / base16)
+
+String representations for a 64-bit integer:
+binary: 8 bytes  (100%) -63.6%
+base64: 11 bytes (138%) -50.0%
+base32: 13 bytes (163%) -40.9%
+base16: 16 bytes (200%) -27.3%
+base10: 22 bytes (275%)
+
+Encode performance (Intel MBP 16", i9):
+encode copy baseline?
+base16: 48m/sec
+base32: 11m/sec
+base64: 34m/sec
+
 Why Base 32?
 Example for the 128-bit identifier:
 Binary: 16 bytes
@@ -185,9 +200,12 @@ classDiagram
 ```
 
 ## Roadmap
-
 - fromBits method
 - Deterministic derive methods
+- Benchmarks
+- KSortable ID<T>
+- KSortable LID<T>
+- KSortable GID<T>
 - Jackson mappers
 - XMLAdapter mappers
 - JAX-RS mappers

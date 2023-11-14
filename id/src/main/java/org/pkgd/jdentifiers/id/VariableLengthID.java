@@ -3,9 +3,8 @@ package org.pkgd.jdentifiers.id;
 import java.util.Arrays;
 
 abstract class VariableLengthID {
-    static final char[] HEX_DIGITS =
-            new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
+    static final byte[] HEX_DIGITS =
+            new byte[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     static final int[] HEX_VALUES = new int[128];
 
     static {
@@ -39,6 +38,4 @@ abstract class VariableLengthID {
 
     VariableLengthID() {
     }
-
-    abstract public String toHexString();
 }

@@ -5,9 +5,11 @@ import java.time.Clock;
 public class KSortableIDGenerator implements IDGenerator {
 
     private final Clock clock;
+    private final int nodeId;
 
-    public KSortableIDGenerator(Clock clock) {
+    public KSortableIDGenerator(Clock clock, int nodeId) {
         this.clock = clock;
+        this.nodeId = nodeId;
     }
 
     @Override
@@ -17,10 +19,11 @@ public class KSortableIDGenerator implements IDGenerator {
 
     @Override
     public <T extends IDAble> ID<T> identifier() {
-        var timestamp = clock.millis();
-        // var sequence number
-        //
-        return ID.fromLong(timestamp);
+        var bits = clock.millis();
+        // Last 16 bits set to nodeId
+        bits |= (nodeId >> 16) << 4;
+        bits |= nodeId >> 24;
+        return ID.fromLong(bits);
     }
 
     @Override

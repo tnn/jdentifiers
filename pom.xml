@@ -10,6 +10,7 @@
 
   <modules>
     <module>id</module>
+    <module>benchmarks</module>
   </modules>
 
   <properties>
@@ -30,7 +31,7 @@
     <dependencies>
       <dependency>
         <groupId>org.pkgd.jdentifiers</groupId>
-        <artifactId>jdentifiers-core</artifactId>
+        <artifactId>jdentifiers-id</artifactId>
         <version>0.1.0-SNAPSHOT</version>
       </dependency>
 
@@ -53,6 +54,20 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
         <version>${logback.version}</version>
+      </dependency>
+
+      <!-- Benchmarking -->
+      <dependency>
+        <groupId>org.openjdk.jmh</groupId>
+        <artifactId>jmh-core</artifactId>
+        <version>1.37</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.openjdk.jmh</groupId>
+        <artifactId>jmh-generator-annprocess</artifactId>
+        <version>1.37</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>

@@ -1,9 +1,9 @@
 package org.pkgd.jdentifiers.id;
 
-import org.pkgd.jdentifiers.id.base32.Base32Crockford;
-
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -15,22 +15,13 @@ import java.util.Objects;
  */
 public class ID<T extends IDAble> extends VariableLengthID implements Serializable, Comparator<ID<T>> {
     private static final int ID_STRING_LENGTH = 16;
+    //base32 length = 13 ?
+
 
     private final long bits;
 
     private ID(long bits) {
         this.bits = bits;
-    }
-
-    /**
-     * Create instance from base32 string.
-     */
-    public static <R extends IDAble> ID<R> fromString(String str) {
-        try {
-            return ID.fromLong(Base32Crockford.decode(str));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -40,7 +31,7 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
         return new ID<>(bits);
     }
 
-    public static <T extends IDAble> ID<T> fromHexString(final CharSequence idSequence) {
+    public static <T extends IDAble> ID<T> fromString(final CharSequence idSequence) {
         if (idSequence.length() != ID_STRING_LENGTH) {
             throw new IllegalArgumentException("Illegal ID64 string: " + idSequence);
         }
@@ -96,31 +87,40 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
 
     @Override
     public String toString() {
-        return Base32Crockford.encode(bits);
+        final byte[] idChars = new byte[ID_STRING_LENGTH];
+
+        idChars[0] = HEX_DIGITS[(byte) ((bits & 0xf000000000000000L) >>> 60)];
+        idChars[1] = HEX_DIGITS[(byte) ((bits & 0x0f00000000000000L) >>> 56)];
+        idChars[2] = HEX_DIGITS[(byte) ((bits & 0x00f0000000000000L) >>> 52)];
+        idChars[3] = HEX_DIGITS[(byte) ((bits & 0x000f000000000000L) >>> 48)];
+        idChars[4] = HEX_DIGITS[(byte) ((bits & 0x0000f00000000000L) >>> 44)];
+        idChars[5] = HEX_DIGITS[(byte) ((bits & 0x00000f0000000000L) >>> 40)];
+        idChars[6] = HEX_DIGITS[(byte) ((bits & 0x000000f000000000L) >>> 36)];
+        idChars[7] = HEX_DIGITS[(byte) ((bits & 0x0000000f00000000L) >>> 32)];
+        idChars[8] = HEX_DIGITS[(byte) ((bits & 0x00000000f0000000L) >>> 28)];
+        idChars[9] = HEX_DIGITS[(byte) ((bits & 0x000000000f000000L) >>> 24)];
+        idChars[10] = HEX_DIGITS[(byte) ((bits & 0x0000000000f00000L) >>> 20)];
+        idChars[11] = HEX_DIGITS[(byte) ((bits & 0x00000000000f0000L) >>> 16)];
+        idChars[12] = HEX_DIGITS[(byte) ((bits & 0x000000000000f000L) >>> 12)];
+        idChars[13] = HEX_DIGITS[(byte) ((bits & 0x0000000000000f00L) >>> 8)];
+        idChars[14] = HEX_DIGITS[(byte) ((bits & 0x00000000000000f0L) >>> 4)];
+        idChars[15] = HEX_DIGITS[(byte) (bits & 0x000000000000000fL)];
+
+        return new String(idChars, StandardCharsets.ISO_8859_1);
     }
 
-    @Override
-    public String toHexString() {
-        final char[] idChars = new char[ID_STRING_LENGTH];
+    public String toBase64String() {
+        byte[] b = new byte[Long.BYTES];
+        b[0] = (byte) bits;
+        b[1] = (byte) (bits >> 8);
+        b[2] = (byte) (bits >> 16);
+        b[3] = (byte) (bits >> 24);
+        b[4] = (byte) (bits >> 32);
+        b[5] = (byte) (bits >> 40);
+        b[6] = (byte) (bits >> 48);
+        b[7] = (byte) (bits >> 56);
+        return new String(Base64.getUrlEncoder().encode(b), StandardCharsets.ISO_8859_1);
 
-        idChars[0] = HEX_DIGITS[(int) ((bits & 0xf000000000000000L) >>> 60)];
-        idChars[1] = HEX_DIGITS[(int) ((bits & 0x0f00000000000000L) >>> 56)];
-        idChars[2] = HEX_DIGITS[(int) ((bits & 0x00f0000000000000L) >>> 52)];
-        idChars[3] = HEX_DIGITS[(int) ((bits & 0x000f000000000000L) >>> 48)];
-        idChars[4] = HEX_DIGITS[(int) ((bits & 0x0000f00000000000L) >>> 44)];
-        idChars[5] = HEX_DIGITS[(int) ((bits & 0x00000f0000000000L) >>> 40)];
-        idChars[6] = HEX_DIGITS[(int) ((bits & 0x000000f000000000L) >>> 36)];
-        idChars[7] = HEX_DIGITS[(int) ((bits & 0x0000000f00000000L) >>> 32)];
-        idChars[8] = HEX_DIGITS[(int) ((bits & 0x00000000f0000000L) >>> 28)];
-        idChars[9] = HEX_DIGITS[(int) ((bits & 0x000000000f000000L) >>> 24)];
-        idChars[10] = HEX_DIGITS[(int) ((bits & 0x0000000000f00000L) >>> 20)];
-        idChars[11] = HEX_DIGITS[(int) ((bits & 0x00000000000f0000L) >>> 16)];
-        idChars[12] = HEX_DIGITS[(int) ((bits & 0x000000000000f000L) >>> 12)];
-        idChars[13] = HEX_DIGITS[(int) ((bits & 0x0000000000000f00L) >>> 8)];
-        idChars[14] = HEX_DIGITS[(int) ((bits & 0x00000000000000f0L) >>> 4)];
-        idChars[15] = HEX_DIGITS[(int) (bits & 0x000000000000000fL)];
-
-        return new String(idChars);
     }
 
     @Override
