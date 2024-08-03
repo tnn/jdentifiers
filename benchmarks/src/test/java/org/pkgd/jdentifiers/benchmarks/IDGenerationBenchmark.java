@@ -25,7 +25,7 @@ import java.util.UUID;
 @Fork(value = 1)
 public class IDGenerationBenchmark {
     private static final IDGenerator randomGen = new RandomIDGenerator();
-    private static final IDGenerator ksortedGen = new KSortableIDGenerator(Clock.systemUTC(), randomGen.localIdentifier().hashCode());
+    private static final IDGenerator ksortedGen = new KSortableIDGenerator(Clock.systemUTC());
 
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()

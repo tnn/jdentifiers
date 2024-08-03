@@ -201,21 +201,29 @@ classDiagram
 
 ## Roadmap
 - fromBits method
-- Deterministic derive methods
 - Benchmarks
+- Deterministic derive methods
 - KSortable ID<T>
 - KSortable LID<T>
 - KSortable GID<T>
-- Jackson mappers
-- XMLAdapter mappers
-- JAX-RS mappers
+- Jackson Converter
+- Jakarta XmlAdapter
+- Json-B JsonbAdapter
+- Jakarta JAX-RS ParamConverters
+- javax JAX-RS ParamConverters
+- Micronaut TypeConverter
+- Spring Converter
 - BOM module for dependency management
-- Benchmarks
-- BID - Business Identifiers
 - AWS SDKv1 Generator node hasher
 - AWS SDKv2 generator node hasher
 - Consul generator node hasher
-- Short and long-lived identifiers (default long lived)
+- Short and long-lived identifiers (default long-lived)
+- Hibernate UuidGenerator / ID (BeforeExecutionGenerator)
+- Example: Micronaut / data / AWS instance id / postgres
+- Example: Spring / Hibernate / k8s pod id
+- Example: Dropwizard / consul
+- Example: Quarkus / ???
+- BID - Business Identifiers
 
 # Credits & Related work
 

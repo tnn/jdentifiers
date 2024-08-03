@@ -46,11 +46,9 @@ public class GID<T extends IDAble> implements Comparable<GID<T>> {
         return new GID<>(UUID.fromString(uuidStr));
     }
 
-
     public UUID asUUID() {
         return uuid;
     }
-
 
     @Override
     public int compareTo(GID<T> o) {

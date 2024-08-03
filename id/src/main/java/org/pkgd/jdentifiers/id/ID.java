@@ -1,6 +1,5 @@
 package org.pkgd.jdentifiers.id;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -15,9 +14,6 @@ import java.util.Objects;
  */
 public class ID<T extends IDAble> extends VariableLengthID implements Serializable, Comparator<ID<T>> {
     private static final int ID_STRING_LENGTH = 16;
-    //base32 length = 13 ?
-
-
     private final long bits;
 
     private ID(long bits) {
@@ -33,7 +29,7 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
 
     public static <T extends IDAble> ID<T> fromString(final CharSequence idSequence) {
         if (idSequence.length() != ID_STRING_LENGTH) {
-            throw new IllegalArgumentException("Illegal ID64 string: " + idSequence);
+            throw new IllegalArgumentException("Illegal ID string: " + idSequence);
         }
 
         long bits = getHexValueForChar(idSequence.charAt(0)) << 60;
@@ -131,8 +127,8 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final ID<? extends IDAble> id64 = (ID<? extends IDAble>) o;
-        return bits == id64.bits;
+        final ID<? extends IDAble> id = (ID<? extends IDAble>) o;
+        return bits == id.bits;
     }
 
     @Override

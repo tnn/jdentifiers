@@ -40,6 +40,11 @@ public class IDStringBenchmark implements IDAble {
     }
 
     @Benchmark
+    public LID<IDAble> lid_32_bit_from_integer() {
+        return LID.fromInteger(2_047_483_647);
+    }
+
+    @Benchmark
     public LID<IDAble> lid_32_bit_from_base16_string() {
         return LID.fromString("6a677fc3");
     }
@@ -52,6 +57,11 @@ public class IDStringBenchmark implements IDAble {
     @Benchmark
     public String lid_32_bit_to_base16_string() {
         return ID_32.toString();
+    }
+
+    @Benchmark
+    public ID<IDAble> id_64_bit_from_long() {
+        return ID.fromLong(9_223_372_036_854_775_807L);
     }
 
     @Benchmark
@@ -81,6 +91,11 @@ public class IDStringBenchmark implements IDAble {
     @Benchmark
     public String id_64_bit_to_base64_string() {
         return ID_64.toBase64String();
+    }
+
+    @Benchmark
+    public GID<IDAble> gid_128_bit_from_uuid() {
+        return GID.fromUuid(TEST_UUID);
     }
 
     @Benchmark
