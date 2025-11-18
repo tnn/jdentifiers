@@ -12,11 +12,9 @@ import org.pkgd.jdentifiers.id.GID;
 import org.pkgd.jdentifiers.id.ID;
 import org.pkgd.jdentifiers.id.IDAble;
 import org.pkgd.jdentifiers.id.IDGenerator;
-import org.pkgd.jdentifiers.id.KSortableIDGenerator;
 import org.pkgd.jdentifiers.id.LID;
 import org.pkgd.jdentifiers.id.RandomIDGenerator;
 
-import java.time.Clock;
 import java.util.UUID;
 
 @State(Scope.Benchmark)
@@ -25,13 +23,12 @@ import java.util.UUID;
 @Fork(value = 1)
 public class IDGenerationBenchmark {
     private static final IDGenerator randomGen = new RandomIDGenerator();
-    private static final IDGenerator ksortedGen = new KSortableIDGenerator(Clock.systemUTC());
 
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()
-                .include(".*" + IDGenerationBenchmark.class.getName() + ".*")
-                .build())
-                .run();
+            .include(".*" + IDGenerationBenchmark.class.getName() + ".*")
+            .build())
+            .run();
     }
 
     @Benchmark
@@ -52,10 +49,5 @@ public class IDGenerationBenchmark {
     @Benchmark
     public UUID random_uuid_jdk() {
         return UUID.randomUUID();
-    }
-
-    @Benchmark
-    public ID<IDAble> k_sorted_64_bit() {
-        return ksortedGen.identifier();
     }
 }
