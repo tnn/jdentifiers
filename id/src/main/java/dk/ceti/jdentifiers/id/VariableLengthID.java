@@ -1,4 +1,4 @@
-package org.pkgd.jdentifiers.id;
+package dk.ceti.jdentifiers.id;
 
 import java.util.Arrays;
 

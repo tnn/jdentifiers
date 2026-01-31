@@ -1,4 +1,4 @@
-package org.pkgd.jdentifiers.id;
+package dk.ceti.jdentifiers.id;
 
 /**
  * Factory for creating new ID instances.

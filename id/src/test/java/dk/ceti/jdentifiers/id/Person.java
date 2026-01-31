@@ -1,4 +1,4 @@
-package org.pkgd.jdentifiers.id;
+package dk.ceti.jdentifiers.id;
 
 public interface Person extends User {
 }

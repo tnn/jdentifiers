@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.pkgd.jdentifiers.id.ID;
-import org.pkgd.jdentifiers.id.IDAble;
+import dk.ceti.jdentifiers.id.ID;
+import dk.ceti.jdentifiers.id.IDAble;
 
 import static org.junit.jupiter.api.Assertions.*;
 

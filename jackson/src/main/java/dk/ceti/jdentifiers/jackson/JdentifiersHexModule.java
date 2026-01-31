@@ -2,8 +2,8 @@ package dk.ceti.jdentifiers.jackson;
 
 import com.fasterxml.jackson.core.json.PackageVersion;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.pkgd.jdentifiers.id.GID;
-import org.pkgd.jdentifiers.id.ID;
+import dk.ceti.jdentifiers.id.GID;
+import dk.ceti.jdentifiers.id.ID;
 
 import java.io.Serial;
 

@@ -1,4 +1,4 @@
-package org.pkgd.jdentifiers.id;
+package dk.ceti.jdentifiers.id;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;

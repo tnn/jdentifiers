@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import org.pkgd.jdentifiers.id.GID;
+import dk.ceti.jdentifiers.id.GID;
 
 import java.io.IOException;
 import java.io.Serial;

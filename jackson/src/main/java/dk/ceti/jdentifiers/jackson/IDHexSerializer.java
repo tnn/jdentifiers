@@ -3,7 +3,7 @@ package dk.ceti.jdentifiers.jackson;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
-import org.pkgd.jdentifiers.id.ID;
+import dk.ceti.jdentifiers.id.ID;
 
 import java.io.IOException;
 import java.io.Serial;

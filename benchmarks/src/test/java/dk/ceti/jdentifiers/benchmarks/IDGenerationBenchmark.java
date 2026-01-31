@@ -1,4 +1,4 @@
-package org.pkgd.jdentifiers.benchmarks;
+package dk.ceti.jdentifiers.benchmarks;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Fork;
@@ -8,12 +8,12 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.pkgd.jdentifiers.id.GID;
-import org.pkgd.jdentifiers.id.ID;
-import org.pkgd.jdentifiers.id.IDAble;
-import org.pkgd.jdentifiers.id.IDGenerator;
-import org.pkgd.jdentifiers.id.LID;
-import org.pkgd.jdentifiers.id.RandomIDGenerator;
+import dk.ceti.jdentifiers.id.GID;
+import dk.ceti.jdentifiers.id.ID;
+import dk.ceti.jdentifiers.id.IDAble;
+import dk.ceti.jdentifiers.id.IDGenerator;
+import dk.ceti.jdentifiers.id.LID;
+import dk.ceti.jdentifiers.id.RandomIDGenerator;
 
 import java.util.UUID;
 

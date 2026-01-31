@@ -1,4 +1,4 @@
-package org.pkgd.jdentifiers.id;
+package dk.ceti.jdentifiers.id;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
