@@ -2,6 +2,9 @@ package dk.ceti.jdentifiers.id;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -35,7 +40,8 @@ class LIDTest {
 
     @Test
     void should_not_accept_null_as_string() {
-        assertThrows(NullPointerException.class, () -> LID.fromString(null));
+        var ex = assertThrows(NullPointerException.class, () -> LID.fromString(null));
+        assertEquals("idSequence must not be null", ex.getMessage());
     }
 
     @Test
@@ -162,6 +168,68 @@ class LIDTest {
         LID<A> a = generator.localIdentifier();
         LID<B> b = LID.fromInteger(a.toInteger());
         assertEquals(a, LID.cast(b));
+    }
+
+    // --- Boundary value tests with pinned string assertions ---
+
+    static Stream<Arguments> boundaryValues() {
+        return Stream.of(
+                Arguments.of(0, "00000000"),
+                Arguments.of(1, "00000001"),
+                Arguments.of(-1, "ffffffff"),
+                Arguments.of(Integer.MAX_VALUE, "7fffffff"),
+                Arguments.of(Integer.MIN_VALUE, "80000000"),
+                Arguments.of(0x01234567, "01234567"),
+                Arguments.of(0x89abcdef, "89abcdef")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("boundaryValues")
+    void toString_pinned_boundary_values(int value, String expectedHex) {
+        assertEquals(expectedHex, LID.fromInteger(value).toString());
+    }
+
+    @ParameterizedTest
+    @MethodSource("boundaryValues")
+    void fromString_pinned_boundary_values(int expectedValue, String hex) {
+        assertEquals(expectedValue, LID.<A>fromString(hex).toInteger());
+    }
+
+    @ParameterizedTest
+    @MethodSource("boundaryValues")
+    void toString_always_8_chars(int value, String expectedHex) {
+        assertEquals(8, LID.fromInteger(value).toString().length());
+    }
+
+    @Test
+    void toString_output_is_always_lowercase() {
+        String hex = LID.fromInteger(0xABCDEF01).toString();
+        assertEquals(hex, hex.toLowerCase());
+    }
+
+    @Test
+    void fromString_empty_string() {
+        assertThrows(IllegalArgumentException.class, () -> LID.<A>fromString(""));
+    }
+
+    static Stream<Integer> allPositions8() {
+        return IntStream.range(0, 8).boxed();
+    }
+
+    @ParameterizedTest
+    @MethodSource("allPositions8")
+    void fromString_invalid_char_at_every_position(int position) {
+        char[] chars = "01234567".toCharArray();
+        chars[position] = 'g';
+        assertThrows(IllegalArgumentException.class, () -> LID.<A>fromString(new String(chars)));
+    }
+
+    @Test
+    void fromString_accepts_StringBuilder() {
+        StringBuilder sb = new StringBuilder("6a677fc2");
+        LID<A> id = LID.fromString(sb);
+        assertEquals(1785167810, id.toInteger());
     }
 
     private static final class A implements IDAble {

@@ -3,27 +3,27 @@ package dk.ceti.jdentifiers.jackson;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import dk.ceti.jdentifiers.id.ID;
+import dk.ceti.jdentifiers.id.LID;
 
 import java.io.IOException;
 import java.io.Serial;
 
-public class IDHexDeserializer extends StdScalarDeserializer<ID<?>> {
+public class LIDHexDeserializer extends StdScalarDeserializer<LID<?>> {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public IDHexDeserializer() {
-        super(ID.class);
+    public LIDHexDeserializer() {
+        super(LID.class);
     }
 
     @Override
-    public ID<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public LID<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         String text = p.getText();
         try {
-            return ID.fromString(text);
+            return LID.fromString(text);
         } catch (IllegalArgumentException e) {
-            return (ID<?>) ctxt.handleWeirdStringValue(ID.class, text,
-                "Invalid ID format: %s", e.getMessage());
+            return (LID<?>) ctxt.handleWeirdStringValue(LID.class, text,
+                "Invalid LID format: %s", e.getMessage());
         }
     }
 }

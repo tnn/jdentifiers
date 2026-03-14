@@ -2,6 +2,9 @@ package dk.ceti.jdentifiers.id;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,12 +33,6 @@ class IDTest {
 
     @Test
     void should_get_user_id_from_string() {
-        // binary bbinaryy               = 8  (100.0%) -63.6%
-        // base64 amd/wu4F4fY            = 11 (137.5%) -50.0%
-        // base32 NJTX7QXOAXQ7M          = 13 (162.5%) -40.9%
-        // base16 6a677fc2ee05e1f6       = 16 (200.0%) -27.3%  <--
-        // base10 1061031271942385225246 = 22 (275.0%)
-
         final ID<A> id = ID.fromString("6a677fc2ee05e1f6");
         assertNotNull(id);
         assertEquals(7667237365815304694L, id.asLong());
@@ -41,7 +40,8 @@ class IDTest {
 
     @Test
     void should_not_accept_null_as_string() {
-        assertThrows(NullPointerException.class, () -> ID.fromString(null));
+        var ex = assertThrows(NullPointerException.class, () -> ID.fromString(null));
+        assertEquals("idSequence must not be null", ex.getMessage());
     }
 
     @Test
@@ -202,7 +202,8 @@ class IDTest {
 
     @Test
     void fromBase64String_null() {
-        assertThrows(NullPointerException.class, () -> ID.<A>fromBase64String(null));
+        var ex = assertThrows(NullPointerException.class, () -> ID.<A>fromBase64String(null));
+        assertEquals("base64 must not be null", ex.getMessage());
     }
 
     @Test
@@ -210,6 +211,68 @@ class IDTest {
         final ID<A> a = generator.identifier();
         final ID<B> b = ID.fromLong(a.asLong());
         assertEquals(a, ID.cast(b));
+    }
+
+    // --- Boundary value tests with pinned string assertions ---
+
+    static Stream<Arguments> boundaryValues() {
+        return Stream.of(
+                Arguments.of(0L, "0000000000000000"),
+                Arguments.of(1L, "0000000000000001"),
+                Arguments.of(-1L, "ffffffffffffffff"),
+                Arguments.of(Long.MAX_VALUE, "7fffffffffffffff"),
+                Arguments.of(Long.MIN_VALUE, "8000000000000000"),
+                Arguments.of(0x0123456789abcdefL, "0123456789abcdef"),
+                Arguments.of(0xfedcba9876543210L, "fedcba9876543210")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("boundaryValues")
+    void toString_pinned_boundary_values(long value, String expectedHex) {
+        assertEquals(expectedHex, ID.fromLong(value).toString());
+    }
+
+    @ParameterizedTest
+    @MethodSource("boundaryValues")
+    void fromString_pinned_boundary_values(long expectedValue, String hex) {
+        assertEquals(expectedValue, ID.<A>fromString(hex).asLong());
+    }
+
+    @ParameterizedTest
+    @MethodSource("boundaryValues")
+    void toString_always_16_chars(long value, String expectedHex) {
+        assertEquals(16, ID.fromLong(value).toString().length());
+    }
+
+    @Test
+    void toString_output_is_always_lowercase() {
+        String hex = ID.fromLong(0xABCDEF0123456789L).toString();
+        assertEquals(hex, hex.toLowerCase());
+    }
+
+    @Test
+    void fromString_empty_string() {
+        assertThrows(IllegalArgumentException.class, () -> ID.<A>fromString(""));
+    }
+
+    static Stream<Integer> allPositions16() {
+        return IntStream.range(0, 16).boxed();
+    }
+
+    @ParameterizedTest
+    @MethodSource("allPositions16")
+    void fromString_invalid_char_at_every_position(int position) {
+        char[] chars = "0123456789abcdef".toCharArray();
+        chars[position] = 'g';
+        assertThrows(IllegalArgumentException.class, () -> ID.<A>fromString(new String(chars)));
+    }
+
+    @Test
+    void fromString_accepts_StringBuilder() {
+        StringBuilder sb = new StringBuilder("6a677fc2ee05e1f6");
+        ID<A> id = ID.fromString(sb);
+        assertEquals(7667237365815304694L, id.asLong());
     }
 
     private static final class A implements IDAble {

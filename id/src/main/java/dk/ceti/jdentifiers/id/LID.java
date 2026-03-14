@@ -3,6 +3,7 @@ package dk.ceti.jdentifiers.id;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Locally scoped 32-bit identifier stored as an unsigned {@code int}.
@@ -13,7 +14,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @param <T> phantom type for compile-time type safety
  */
-public class LID<T extends IDAble> extends VariableLengthID implements Serializable, Comparable<LID<?>> {
+public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
     @Serial
     private static final long serialVersionUID = -2800087606778454906L;
     private static final int LID_STRING_LENGTH = 8;
@@ -28,35 +29,24 @@ public class LID<T extends IDAble> extends VariableLengthID implements Serializa
     }
 
     public static <T extends IDAble> LID<T> fromString(final CharSequence idSequence) {
+        Objects.requireNonNull(idSequence, "idSequence must not be null");
         if (idSequence.length() != LID_STRING_LENGTH) {
-            throw new IllegalArgumentException("Illegal LID hex string: " + idSequence);
+            throw new IllegalArgumentException(
+                    "Invalid ID string: expected " + LID_STRING_LENGTH + " hex chars, got " + idSequence.length());
         }
 
-        int bits = getHexValueForChar(idSequence.charAt(0)) << 28;
-        bits |= getHexValueForChar(idSequence.charAt(1)) << 24;
-        bits |= getHexValueForChar(idSequence.charAt(2)) << 20;
-        bits |= getHexValueForChar(idSequence.charAt(3)) << 16;
+        int bits = HexCodec.getHexValue(idSequence.charAt(0)) << 28;
+        bits |= HexCodec.getHexValue(idSequence.charAt(1)) << 24;
+        bits |= HexCodec.getHexValue(idSequence.charAt(2)) << 20;
+        bits |= HexCodec.getHexValue(idSequence.charAt(3)) << 16;
 
-        bits |= getHexValueForChar(idSequence.charAt(4)) << 12;
-        bits |= getHexValueForChar(idSequence.charAt(5)) << 8;
-        bits |= getHexValueForChar(idSequence.charAt(6)) << 4;
-        bits |= getHexValueForChar(idSequence.charAt(7));
+        bits |= HexCodec.getHexValue(idSequence.charAt(4)) << 12;
+        bits |= HexCodec.getHexValue(idSequence.charAt(5)) << 8;
+        bits |= HexCodec.getHexValue(idSequence.charAt(6)) << 4;
+        bits |= HexCodec.getHexValue(idSequence.charAt(7));
 
         return new LID<>(bits);
     }
-
-    private static int getHexValueForChar(final char c) {
-        try {
-            if (HEX_VALUES[c] < 0) {
-                throw new IllegalArgumentException("Illegal hexadecimal digit: " + c);
-            }
-        } catch (final ArrayIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Illegal hexadecimal digit: " + c, e);
-        }
-
-        return HEX_VALUES[c];
-    }
-
 
     @SuppressWarnings("unchecked")
     public static <I extends IDAble> LID<I> cast(LID<? extends IDAble> id) {
@@ -72,6 +62,10 @@ public class LID<T extends IDAble> extends VariableLengthID implements Serializa
         return Integer.compareUnsigned(this.bits, o.bits);
     }
 
+    /**
+     * Compares based on the underlying {@code int} value only.
+     * The phantom type parameter {@code T} is erased at runtime and is not considered.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
@@ -94,14 +88,14 @@ public class LID<T extends IDAble> extends VariableLengthID implements Serializa
     public String toString() {
         final byte[] idChars = new byte[LID_STRING_LENGTH];
 
-        idChars[0] = HEX_DIGITS[(bits & 0xf0000000) >>> 28];
-        idChars[1] = HEX_DIGITS[(bits & 0x0f000000) >>> 24];
-        idChars[2] = HEX_DIGITS[(bits & 0x00f00000) >>> 20];
-        idChars[3] = HEX_DIGITS[(bits & 0x000f0000) >>> 16];
-        idChars[4] = HEX_DIGITS[(bits & 0x0000f000) >>> 12];
-        idChars[5] = HEX_DIGITS[(bits & 0x00000f00) >>> 8];
-        idChars[6] = HEX_DIGITS[(bits & 0x000000f0) >>> 4];
-        idChars[7] = HEX_DIGITS[bits & 0x0000000f];
+        idChars[0] = HexCodec.HEX_DIGITS[(bits & 0xf0000000) >>> 28];
+        idChars[1] = HexCodec.HEX_DIGITS[(bits & 0x0f000000) >>> 24];
+        idChars[2] = HexCodec.HEX_DIGITS[(bits & 0x00f00000) >>> 20];
+        idChars[3] = HexCodec.HEX_DIGITS[(bits & 0x000f0000) >>> 16];
+        idChars[4] = HexCodec.HEX_DIGITS[(bits & 0x0000f000) >>> 12];
+        idChars[5] = HexCodec.HEX_DIGITS[(bits & 0x00000f00) >>> 8];
+        idChars[6] = HexCodec.HEX_DIGITS[(bits & 0x000000f0) >>> 4];
+        idChars[7] = HexCodec.HEX_DIGITS[bits & 0x0000000f];
 
         return new String(idChars, StandardCharsets.ISO_8859_1);
     }

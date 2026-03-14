@@ -10,7 +10,7 @@ Generics-based, type safe, k-sortable 128-, 64- and 32-bit unique identifiers
   32-bit / 4-byte / ~2x10^9 identifier scoped to a specific entity, fx within a composite index for a tenant, for
   example `(organization_id, group_id)`,
 * ID: Entity Identifier
-* 64-bit / 8-byte / ~9x10^18 identifier denoting a entity, normally a unique identifier / primary key for a specific
+* 64-bit / 8-byte / ~9x10^18 identifier denoting an entity, normally a unique identifier / primary key for a specific
   entity within a single system.
 * GID: Globally Unique Identifier
   128-bit / 16-byte / ~1.7X10^38 identifier denoting an entity globally unique across multiple systems,  
@@ -32,9 +32,9 @@ for primary keys in an active distributed system.
 
 The idea of prefixing identifiers as done by Stripe (ref) is interestingly, but it comes with considerable overhead.
 This library
-aims to able to support custom prefix if desired, but not out of the box in the default toString.
+aims to be able to support custom prefix if desired, but not out of the box in the default toString.
 
-For low throughput entities, shorter ids generated with a similar approach can likewise benefits. These would often be
+For low throughput entities, shorter ids generated with a similar approach can likewise benefit. These would often be
 non-globally unique identifiers, for example such as a Team within an Organization in a multi-tenant system.
 
 Split the generation of the identifiers, such that different use cases can choose whatever strategy for generation that

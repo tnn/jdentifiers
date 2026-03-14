@@ -7,7 +7,6 @@ import dk.ceti.jdentifiers.id.ID
 import dk.ceti.jdentifiers.id.LID
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 
 @Suppress("UNCHECKED_CAST")
 val jdentifiersSerializersModule: SerializersModule = SerializersModule {

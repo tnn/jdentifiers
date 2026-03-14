@@ -16,10 +16,10 @@ import dk.ceti.jdentifiers.id.LID;
 import java.util.UUID;
 
 /**
- * Benchmark our various ID implementations.
+ * Benchmark string conversion for the various ID implementations.
  * <p>
- * Note the BlackHole construct must be used, because the JVM would otherwise see the single statements has not having
- * any affect on the result (void) and optimize it away, voiding the result.
+ * Each {@code @Benchmark} method returns its result so JMH implicitly consumes it,
+ * preventing dead-code elimination without an explicit {@code Blackhole}.
  */
 @State(Scope.Benchmark)
 @Warmup(iterations = 3, time = 1)
@@ -76,15 +76,6 @@ public class IDStringBenchmark implements IDAble {
 
     @Benchmark
     public String id_64_bit_to_base16_string() {
-        // final char[] idChars -> new String(idChars
-        //IDStringBenchmark.id_64_bit_to_base16_string         thrpt    5   11139913.553 ±  1168880.284  ops/s
-        //IDStringBenchmark.id_64_bit_to_base16_string         thrpt    5   47728174.663 ± 12604889.790  ops/s
-        // return new String(idChars, StandardCharsets.ISO_8859_1);
-
-        // base64 deprecated
-        //IDStringBenchmark.id_64_bit_to_base64_string         thrpt    5   33825497.955 ±  6067492.758  ops/s
-        // base64 charsets
-        //IDStringBenchmark.id_64_bit_to_base64_string         thrpt    5   31719721.139 ±   262900.164  ops/s
         return ID_64.toString();
     }
 

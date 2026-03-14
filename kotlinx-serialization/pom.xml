@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>jdentifiers-kotlinx-serialization</artifactId>
-  <name>Jdentifiers :: kotlinx-serialization adapters</name>
+  <name>Jdentifiers :: Kotlinx serialization adapters</name>
 
   <dependencies>
     <dependency>
@@ -79,6 +79,17 @@
             <version>${kotlin.version}</version>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>dk.ceti.jdentifiers.kotlinx.serialization</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>

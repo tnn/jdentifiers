@@ -12,28 +12,57 @@
   <artifactId>jdentifiers-benchmarks</artifactId>
   <name>Jdentifiers :: Benchmarks</name>
 
-
-  <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>org.openjdk.jmh.Main</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <executable>java</executable>
+          <arguments>
+            <argument>-jar</argument>
+            <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+            <argument>${benchmark}</argument>
+          </arguments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
       <groupId>dk.ceti.jdentifiers</groupId>
       <artifactId>jdentifiers-id</artifactId>
     </dependency>
-    <!-- Benchmark -->
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-core</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-generator-annprocess</artifactId>
-      <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

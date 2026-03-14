@@ -37,13 +37,13 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
      * @throws NullPointerException if gidStr is null
      */
     public static <R extends IDAble> GID<R> fromString(CharSequence gidStr) {
+        Objects.requireNonNull(gidStr, "gidStr must not be null");
         return new GID<>(UUID.fromString(gidStr.toString()));
     }
 
     public static <R extends IDAble> GID<R> fromUuid(UUID uuid) {
         return new GID<>(uuid);
     }
-
 
     public static <T extends IDAble> List<GID<T>> fromUUIDs(Iterable<UUID> uuids) {
         Objects.requireNonNull(uuids);
@@ -89,6 +89,10 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
         return uuid.hashCode();
     }
 
+    /**
+     * Compares based on the underlying {@link UUID} value only.
+     * The phantom type parameter {@code T} is erased at runtime and is not considered.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object obj) {

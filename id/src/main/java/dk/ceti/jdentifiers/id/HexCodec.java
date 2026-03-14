@@ -2,7 +2,12 @@ package dk.ceti.jdentifiers.id;
 
 import java.util.Arrays;
 
-abstract class VariableLengthID {
+/**
+ * Package-private lookup tables and utility methods for hexadecimal encoding/decoding.
+ */
+final class HexCodec {
+    // Intentionally a direct array for performance in toString() hot paths.
+    // Package-private and must not be mutated.
     static final byte[] HEX_DIGITS =
             new byte[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     static final int[] HEX_VALUES = new int[128];
@@ -36,6 +41,18 @@ abstract class VariableLengthID {
         HEX_VALUES['F'] = 0xf;
     }
 
-    VariableLengthID() {
+    private HexCodec() {
+    }
+
+    /**
+     * Returns the numeric value of a hexadecimal character.
+     *
+     * @throws IllegalArgumentException if the character is not a valid hex digit
+     */
+    static int getHexValue(final char c) {
+        if (c >= HEX_VALUES.length || HEX_VALUES[c] < 0) {
+            throw new IllegalArgumentException("Invalid hexadecimal digit: " + c);
+        }
+        return HEX_VALUES[c];
     }
 }

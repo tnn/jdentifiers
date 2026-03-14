@@ -4,6 +4,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Objects;
+
 /**
  * 64-bit identifier stored as an unsigned {@code long}.
  * <p>
@@ -18,7 +20,7 @@ import java.util.Base64;
  *
  * @param <T> phantom type for compile-time type safety
  */
-public class ID<T extends IDAble> extends VariableLengthID implements Serializable, Comparable<ID<?>> {
+public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
     @Serial
     private static final long serialVersionUID = -8420092324658811433L;
     private static final int ID_STRING_LENGTH = 16;
@@ -36,29 +38,31 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
     }
 
     public static <T extends IDAble> ID<T> fromString(final CharSequence idSequence) {
+        Objects.requireNonNull(idSequence, "idSequence must not be null");
         if (idSequence.length() != ID_STRING_LENGTH) {
-            throw new IllegalArgumentException("Illegal ID string: " + idSequence);
+            throw new IllegalArgumentException(
+                    "Invalid ID string: expected " + ID_STRING_LENGTH + " hex chars, got " + idSequence.length());
         }
 
-        long bits = getHexValueForChar(idSequence.charAt(0)) << 60;
-        bits |= getHexValueForChar(idSequence.charAt(1)) << 56;
-        bits |= getHexValueForChar(idSequence.charAt(2)) << 52;
-        bits |= getHexValueForChar(idSequence.charAt(3)) << 48;
+        long bits = (long) HexCodec.getHexValue(idSequence.charAt(0)) << 60;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(1)) << 56;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(2)) << 52;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(3)) << 48;
 
-        bits |= getHexValueForChar(idSequence.charAt(4)) << 44;
-        bits |= getHexValueForChar(idSequence.charAt(5)) << 40;
-        bits |= getHexValueForChar(idSequence.charAt(6)) << 36;
-        bits |= getHexValueForChar(idSequence.charAt(7)) << 32;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(4)) << 44;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(5)) << 40;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(6)) << 36;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(7)) << 32;
 
-        bits |= getHexValueForChar(idSequence.charAt(8)) << 28;
-        bits |= getHexValueForChar(idSequence.charAt(9)) << 24;
-        bits |= getHexValueForChar(idSequence.charAt(10)) << 20;
-        bits |= getHexValueForChar(idSequence.charAt(11)) << 16;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(8)) << 28;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(9)) << 24;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(10)) << 20;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(11)) << 16;
 
-        bits |= getHexValueForChar(idSequence.charAt(12)) << 12;
-        bits |= getHexValueForChar(idSequence.charAt(13)) << 8;
-        bits |= getHexValueForChar(idSequence.charAt(14)) << 4;
-        bits |= getHexValueForChar(idSequence.charAt(15));
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(12)) << 12;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(13)) << 8;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(14)) << 4;
+        bits |= (long) HexCodec.getHexValue(idSequence.charAt(15));
 
         return new ID<>(bits);
     }
@@ -66,18 +70,6 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
     @SuppressWarnings("unchecked")
     public static <I extends IDAble> ID<I> cast(ID<? extends IDAble> id) {
         return (ID<I>) id;
-    }
-
-    private static long getHexValueForChar(final char c) {
-        try {
-            if (HEX_VALUES[c] < 0) {
-                throw new IllegalArgumentException("Illegal hexadecimal digit: " + c);
-            }
-        } catch (final ArrayIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Illegal hexadecimal digit: " + c, e);
-        }
-
-        return HEX_VALUES[c];
     }
 
     public long asLong() {
@@ -93,22 +85,22 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
     public String toString() {
         final byte[] idChars = new byte[ID_STRING_LENGTH];
 
-        idChars[0] = HEX_DIGITS[(byte) ((bits & 0xf000000000000000L) >>> 60)];
-        idChars[1] = HEX_DIGITS[(byte) ((bits & 0x0f00000000000000L) >>> 56)];
-        idChars[2] = HEX_DIGITS[(byte) ((bits & 0x00f0000000000000L) >>> 52)];
-        idChars[3] = HEX_DIGITS[(byte) ((bits & 0x000f000000000000L) >>> 48)];
-        idChars[4] = HEX_DIGITS[(byte) ((bits & 0x0000f00000000000L) >>> 44)];
-        idChars[5] = HEX_DIGITS[(byte) ((bits & 0x00000f0000000000L) >>> 40)];
-        idChars[6] = HEX_DIGITS[(byte) ((bits & 0x000000f000000000L) >>> 36)];
-        idChars[7] = HEX_DIGITS[(byte) ((bits & 0x0000000f00000000L) >>> 32)];
-        idChars[8] = HEX_DIGITS[(byte) ((bits & 0x00000000f0000000L) >>> 28)];
-        idChars[9] = HEX_DIGITS[(byte) ((bits & 0x000000000f000000L) >>> 24)];
-        idChars[10] = HEX_DIGITS[(byte) ((bits & 0x0000000000f00000L) >>> 20)];
-        idChars[11] = HEX_DIGITS[(byte) ((bits & 0x00000000000f0000L) >>> 16)];
-        idChars[12] = HEX_DIGITS[(byte) ((bits & 0x000000000000f000L) >>> 12)];
-        idChars[13] = HEX_DIGITS[(byte) ((bits & 0x0000000000000f00L) >>> 8)];
-        idChars[14] = HEX_DIGITS[(byte) ((bits & 0x00000000000000f0L) >>> 4)];
-        idChars[15] = HEX_DIGITS[(byte) (bits & 0x000000000000000fL)];
+        idChars[0] = HexCodec.HEX_DIGITS[(int) ((bits & 0xf000000000000000L) >>> 60)];
+        idChars[1] = HexCodec.HEX_DIGITS[(int) ((bits & 0x0f00000000000000L) >>> 56)];
+        idChars[2] = HexCodec.HEX_DIGITS[(int) ((bits & 0x00f0000000000000L) >>> 52)];
+        idChars[3] = HexCodec.HEX_DIGITS[(int) ((bits & 0x000f000000000000L) >>> 48)];
+        idChars[4] = HexCodec.HEX_DIGITS[(int) ((bits & 0x0000f00000000000L) >>> 44)];
+        idChars[5] = HexCodec.HEX_DIGITS[(int) ((bits & 0x00000f0000000000L) >>> 40)];
+        idChars[6] = HexCodec.HEX_DIGITS[(int) ((bits & 0x000000f000000000L) >>> 36)];
+        idChars[7] = HexCodec.HEX_DIGITS[(int) ((bits & 0x0000000f00000000L) >>> 32)];
+        idChars[8] = HexCodec.HEX_DIGITS[(int) ((bits & 0x00000000f0000000L) >>> 28)];
+        idChars[9] = HexCodec.HEX_DIGITS[(int) ((bits & 0x000000000f000000L) >>> 24)];
+        idChars[10] = HexCodec.HEX_DIGITS[(int) ((bits & 0x0000000000f00000L) >>> 20)];
+        idChars[11] = HexCodec.HEX_DIGITS[(int) ((bits & 0x00000000000f0000L) >>> 16)];
+        idChars[12] = HexCodec.HEX_DIGITS[(int) ((bits & 0x000000000000f000L) >>> 12)];
+        idChars[13] = HexCodec.HEX_DIGITS[(int) ((bits & 0x0000000000000f00L) >>> 8)];
+        idChars[14] = HexCodec.HEX_DIGITS[(int) ((bits & 0x00000000000000f0L) >>> 4)];
+        idChars[15] = HexCodec.HEX_DIGITS[(int) (bits & 0x000000000000000fL)];
 
         return new String(idChars, StandardCharsets.ISO_8859_1);
     }
@@ -116,7 +108,7 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
     /**
      * Returns a URL-safe, unpadded Base64 encoding of this ID in big-endian byte order.
      *
-     * @see #fromBase64String(String)
+     * @see #fromBase64String(CharSequence)
      */
     public String toBase64String() {
         byte[] b = new byte[Long.BYTES];
@@ -139,6 +131,7 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
      * @see #toBase64String()
      */
     public static <T extends IDAble> ID<T> fromBase64String(CharSequence base64) {
+        Objects.requireNonNull(base64, "base64 must not be null");
         byte[] b = Base64.getUrlDecoder().decode(base64.toString());
         if (b.length != Long.BYTES) {
             throw new IllegalArgumentException(
@@ -155,6 +148,10 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
         return new ID<>(bits);
     }
 
+    /**
+     * Compares based on the underlying {@code long} value only.
+     * The phantom type parameter {@code T} is erased at runtime and is not considered.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object o) {

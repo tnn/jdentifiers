@@ -112,12 +112,14 @@ class GIDTest {
 
     @Test
     void fromString_null_input() {
-        assertThrows(NullPointerException.class, () -> GID.fromString(null));
+        var ex = assertThrows(NullPointerException.class, () -> GID.fromString(null));
+        assertEquals("gidStr must not be null", ex.getMessage());
     }
 
     @Test
     void fromUuid_null_input() {
-        assertThrows(NullPointerException.class, () -> GID.fromUuid(null));
+        var ex = assertThrows(NullPointerException.class, () -> GID.fromUuid(null));
+        assertEquals("uuid must not be null", ex.getMessage());
     }
 
     @Test

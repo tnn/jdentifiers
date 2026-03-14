@@ -12,6 +12,19 @@
   <artifactId>jdentifiers-jackson</artifactId>
   <name>Jdentifiers :: Jackson adapters</name>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- Jackson needs reflective access to the test record (IdHolder) inside this JPMS module -->
+          <argLine>--add-opens dk.ceti.jdentifiers.jackson/dk.ceti.jdentifiers.jackson=com.fasterxml.jackson.databind</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>dk.ceti.jdentifiers</groupId>
