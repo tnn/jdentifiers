@@ -3,12 +3,20 @@ package dk.ceti.jdentifiers.id;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LIDTest {
     private static IDGenerator generator;
@@ -98,6 +106,55 @@ class LIDTest {
     @Test
     void different_class_should_not_be_equal() {
         assertFalse(LID.fromString("6a677fc2").equals(UUID.randomUUID()));
+    }
+
+    @Test
+    void compareTo_less_than() {
+        assertTrue(LID.<A>fromString("6a677fc2").compareTo(LID.fromString("8a677fc2")) < 0);
+    }
+
+    @Test
+    void compareTo_equal() {
+        assertEquals(0, LID.<A>fromString("6a677fc2").compareTo(LID.fromString("6a677fc2")));
+    }
+
+    @Test
+    void compareTo_unsigned_ordering() {
+        assertTrue(LID.<A>fromString("8a677fc2").compareTo(LID.fromString("6a677fc2")) > 0);
+    }
+
+    @Test
+    void java_serialization_round_trip() throws Exception {
+        final LID<A> original = LID.fromInteger(1785167810);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        new ObjectOutputStream(baos).writeObject(original);
+        LID<?> deserialized = (LID<?>) new ObjectInputStream(
+            new ByteArrayInputStream(baos.toByteArray())).readObject();
+        assertEquals(original, deserialized);
+    }
+
+    @Test
+    void collections_sort_unsigned_ordering() {
+        final LID<A> zero = LID.fromInteger(0);
+        final LID<A> mid  = LID.fromInteger(Integer.MAX_VALUE);
+        final LID<A> high = LID.fromInteger(Integer.MIN_VALUE);
+        final LID<A> max  = LID.fromInteger(-1);
+
+        List<LID<A>> list = new ArrayList<>(List.of(max, zero, high, mid));
+        Collections.sort(list);
+        assertEquals(List.of(zero, mid, high, max), list);
+    }
+
+    @Test
+    void collections_sort_wildcard_list() {
+        final LID<A> a = LID.fromInteger(2);
+        final LID<B> b = LID.fromInteger(1);
+
+        List<LID<?>> list = new ArrayList<>();
+        list.add(a);
+        list.add(b);
+        Collections.sort(list);
+        assertEquals(1, list.get(0).toInteger());
     }
 
     @Test

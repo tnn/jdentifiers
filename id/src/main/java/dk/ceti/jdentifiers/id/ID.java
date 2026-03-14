@@ -1,18 +1,26 @@
 package dk.ceti.jdentifiers.id;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Comparator;
-import java.util.Objects;
-
 /**
- * 64-bit identifier.
+ * 64-bit identifier stored as an unsigned {@code long}.
  * <p>
+ * String representations use big-endian (most-significant-nibble-first) encoding:
+ * <ul>
+ *   <li>{@link #toString()} / {@link #fromString(CharSequence)} — 16 lowercase hex characters.
+ *       Lexicographic hex ordering is consistent with unsigned numeric ordering.</li>
+ *   <li>{@link #toBase64String()} / {@link #fromBase64String(CharSequence)} — URL-safe Base64, unpadded.
+ *       Base64 string ordering does <em>not</em> match numeric ordering;
+ *       use {@link #compareTo} for correct ordering.</li>
+ * </ul>
  *
- * @param <T>
+ * @param <T> phantom type for compile-time type safety
  */
-public class ID<T extends IDAble> extends VariableLengthID implements Serializable, Comparator<ID<T>> {
+public class ID<T extends IDAble> extends VariableLengthID implements Serializable, Comparable<ID<?>> {
+    @Serial
+    private static final long serialVersionUID = -8420092324658811433L;
     private static final int ID_STRING_LENGTH = 16;
     private final long bits;
 
@@ -77,8 +85,8 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
     }
 
     @Override
-    public int compare(ID<T> x, ID<T> y) {
-        return Long.compare(x.bits, y.bits);
+    public int compareTo(ID<?> o) {
+        return Long.compareUnsigned(this.bits, o.bits);
     }
 
     @Override
@@ -105,21 +113,50 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
         return new String(idChars, StandardCharsets.ISO_8859_1);
     }
 
+    /**
+     * Returns a URL-safe, unpadded Base64 encoding of this ID in big-endian byte order.
+     *
+     * @see #fromBase64String(String)
+     */
     public String toBase64String() {
         byte[] b = new byte[Long.BYTES];
-        b[0] = (byte) bits;
-        b[1] = (byte) (bits >> 8);
-        b[2] = (byte) (bits >> 16);
-        b[3] = (byte) (bits >> 24);
-        b[4] = (byte) (bits >> 32);
-        b[5] = (byte) (bits >> 40);
-        b[6] = (byte) (bits >> 48);
-        b[7] = (byte) (bits >> 56);
-        return new String(Base64.getUrlEncoder().encode(b), StandardCharsets.ISO_8859_1);
+        b[0] = (byte) (bits >> 56);
+        b[1] = (byte) (bits >> 48);
+        b[2] = (byte) (bits >> 40);
+        b[3] = (byte) (bits >> 32);
+        b[4] = (byte) (bits >> 24);
+        b[5] = (byte) (bits >> 16);
+        b[6] = (byte) (bits >> 8);
+        b[7] = (byte) bits;
+        return new String(Base64.getUrlEncoder().withoutPadding().encode(b), StandardCharsets.ISO_8859_1);
+    }
 
+    /**
+     * Creates an ID from a URL-safe Base64 string (padded or unpadded) in big-endian byte order.
+     * <p>
+     * Accepts {@link CharSequence} for API consistency; internally calls {@code toString()}.
+     *
+     * @see #toBase64String()
+     */
+    public static <T extends IDAble> ID<T> fromBase64String(CharSequence base64) {
+        byte[] b = Base64.getUrlDecoder().decode(base64.toString());
+        if (b.length != Long.BYTES) {
+            throw new IllegalArgumentException(
+                "Invalid base64 ID: expected 8 bytes, got " + b.length);
+        }
+        long bits = ((long) (b[0] & 0xFF) << 56)
+                  | ((long) (b[1] & 0xFF) << 48)
+                  | ((long) (b[2] & 0xFF) << 40)
+                  | ((long) (b[3] & 0xFF) << 32)
+                  | ((long) (b[4] & 0xFF) << 24)
+                  | ((long) (b[5] & 0xFF) << 16)
+                  | ((long) (b[6] & 0xFF) << 8)
+                  |  (long) (b[7] & 0xFF);
+        return new ID<>(bits);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -133,6 +170,6 @@ public class ID<T extends IDAble> extends VariableLengthID implements Serializab
 
     @Override
     public int hashCode() {
-        return Objects.hash(bits);
+        return Long.hashCode(bits);
     }
 }

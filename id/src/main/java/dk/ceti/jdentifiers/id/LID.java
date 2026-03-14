@@ -1,12 +1,21 @@
 package dk.ceti.jdentifiers.id;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 /**
- * Locally scoped 32-bit identifier.
+ * Locally scoped 32-bit identifier stored as an unsigned {@code int}.
+ * <p>
+ * The string representation ({@link #toString()} / {@link #fromString(CharSequence)})
+ * uses 8 lowercase hex characters in big-endian (most-significant-nibble-first) encoding.
+ * This ensures that lexicographic string ordering is consistent with unsigned numeric ordering.
+ *
+ * @param <T> phantom type for compile-time type safety
  */
-public class LID<T extends IDAble> extends VariableLengthID {
+public class LID<T extends IDAble> extends VariableLengthID implements Serializable, Comparable<LID<?>> {
+    @Serial
+    private static final long serialVersionUID = -2800087606778454906L;
     private static final int LID_STRING_LENGTH = 8;
     private final int bits;
 
@@ -59,6 +68,12 @@ public class LID<T extends IDAble> extends VariableLengthID {
     }
 
     @Override
+    public int compareTo(LID<?> o) {
+        return Integer.compareUnsigned(this.bits, o.bits);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -72,7 +87,7 @@ public class LID<T extends IDAble> extends VariableLengthID {
 
     @Override
     public int hashCode() {
-        return Objects.hash(bits);
+        return Integer.hashCode(bits);
     }
 
     @Override

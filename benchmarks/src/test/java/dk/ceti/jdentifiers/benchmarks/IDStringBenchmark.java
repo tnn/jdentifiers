@@ -29,7 +29,7 @@ public class IDStringBenchmark implements IDAble {
     private static final LID<IDStringBenchmark> ID_32 = LID.fromString("6a677fc2");
     private static final ID<IDStringBenchmark> ID_64 = ID.fromString("6a677fc2ee05e1f6");
 
-    private static final GID<IDStringBenchmark> ID_128 = GID.fromHexString("420bb7c1-4bb6-4936-9ab1-b6b81f9c0f61");
+    private static final GID<IDStringBenchmark> ID_128 = GID.fromString("420bb7c1-4bb6-4936-9ab1-b6b81f9c0f61");
     private static final UUID TEST_UUID = UUID.fromString("eee0d1bc-867e-4f08-99cc-35334bb3fee9");
 
     public static void main(String[] args) throws Exception {
@@ -100,12 +100,12 @@ public class IDStringBenchmark implements IDAble {
 
     @Benchmark
     public GID<IDAble> gid_128_bit_from_base16_string() {
-        return GID.fromHexString("de83dd89-d106-406c-8eff-53864a4b2d13");
+        return GID.fromString("de83dd89-d106-406c-8eff-53864a4b2d13");
     }
 
     @Benchmark
     public String gid_128_bit_to_base16_string() {
-        return ID_128.toHexString();
+        return ID_128.toString();
     }
 
     @Benchmark

@@ -15,11 +15,11 @@ public class RandomIDGenerator implements IDGenerator {
         static {
             SecureRandom numberGeneratorTmp;
             try {
-                // The default algorithm in Hotspot 17 may be use NativePRNG
-                // which can block in case there isn't enough entropy available.
-                // The random numbers we generate here has too little entropy to be
-                // cryptographically secure anyway, thus we choose performance over security.
-                // TODO: Check if DRBG performance is better
+                // The default SecureRandom on Linux/macOS (Hotspot 17+) may use NativePRNG,
+                // which reads from /dev/random and can block when the OS entropy pool is
+                // exhausted. SHA1PRNG seeds once from the OS entropy pool and then generates
+                // output deterministically — it never blocks after initial seeding.
+                // We choose SHA1PRNG for predictable latency.
                 numberGeneratorTmp = SecureRandom.getInstance("SHA1PRNG");
             } catch (NoSuchAlgorithmException e) {
                 numberGeneratorTmp = new SecureRandom();
