@@ -1,8 +1,11 @@
 package dk.ceti.jdentifiers.benchmarks;
 
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
@@ -16,17 +19,29 @@ import dk.ceti.jdentifiers.id.LID;
 import dk.ceti.jdentifiers.id.RandomIDGenerator;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * Throughput benchmark for random ID generation.
+ * <p>
+ * Measures maximum generation rate without pacing. Useful for detecting
+ * regressions in the ID construction and SecureRandom paths.
+ * <p>
+ * K-sortable generators are excluded — their throughput is bounded by
+ * clock resolution and counter capacity, not by code efficiency.
+ */
 @State(Scope.Benchmark)
+@BenchmarkMode(Mode.Throughput)
+@OutputTimeUnit(TimeUnit.SECONDS)
 @Warmup(iterations = 3, time = 1)
 @Measurement(iterations = 5, time = 1)
 @Fork(value = 1)
-public class IDGenerationBenchmark {
+public class IDThroughputGenerationBenchmark {
     private static final IDGenerator randomGen = new RandomIDGenerator();
 
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()
-            .include(".*" + IDGenerationBenchmark.class.getName() + ".*")
+            .include(".*" + IDThroughputGenerationBenchmark.class.getName() + ".*")
             .build())
             .run();
     }

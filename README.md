@@ -1,238 +1,215 @@
 # Jdentifiers
 
-Generics-based, type safe, k-sortable 128-, 64- and 32-bit unique identifiers
+Type-safe, k-sortable identifier library for Java.
 
-## What
-
-3 main identifier types:
-
-* LID: Locally scoped Identifier
-  32-bit / 4-byte / ~2x10^9 identifier scoped to a specific entity, fx within a composite index for a tenant, for
-  example `(organization_id, group_id)`,
-* ID: Entity Identifier
-* 64-bit / 8-byte / ~9x10^18 identifier denoting an entity, normally a unique identifier / primary key for a specific
-  entity within a single system.
-* GID: Globally Unique Identifier
-  128-bit / 16-byte / ~1.7X10^38 identifier denoting an entity globally unique across multiple systems,  
-  specially conforms to either UUID v4 or UUID v7.
-
-# Goals
-
-* Low overhead of abstractions
-
-# Why
-
-There is already great implementations out there,
-but xlid doesn't allow you to use the type system to differentiate between the different entities or aggregates in a
-system.
-type-id only differentiate on the final output string with a custom prefix, but not in the type system.
-
-What we love is the UUIDv7-style time-sortable / k-sortable randomly generated identifiers that can safely be used
-for primary keys in an active distributed system.
-
-The idea of prefixing identifiers as done by Stripe (ref) is interestingly, but it comes with considerable overhead.
-This library
-aims to be able to support custom prefix if desired, but not out of the box in the default toString.
-
-For low throughput entities, shorter ids generated with a similar approach can likewise benefit. These would often be
-non-globally unique identifiers, for example such as a Team within an Organization in a multi-tenant system.
-
-Split the generation of the identifiers, such that different use cases can choose whatever strategy for generation that
-suits the use case the best, without having the API consumers having to be aware of how the identifier was generated.
-For example, for new Organization Identifiers (`ID<Organization>`), k-sortable may be suitable, however for
-
-The default "ID" implementation uses 8-bytes / 64-bit as opposed to 16-byes / 128-bit (UUID). This is highly subjective
-choose, but the author of the API's understanding of the use cases, must entities in a modern multi-tenant SaaS product,
-even a highly popular one, does not exceed more than 2^63 entities. For example as of 2014 Twitter saw around 6,000
-tweets
-per second in average (200 billion per
-year) ([ref](https://blog.twitter.com/official/en_us/a/2014/the-2014-yearontwitter.html)),
-yet they can still fit it Tweet identifiers within a 64-bit as it would take ~200 million years to exhaust the potential
-identifier space.
-
-Why inject the encoding / decoding from the generator?
-This allows the consumer of the API to change the human-readable format if the default doesn't suit the use case.
-Maybe this isn't a great idea, since fromString / fromLong etc. would then need to pass the codec?
-
-## Why generics / typed identifiers
-
-Why not just "ID" - why the complexity of adding `<? extends IDAble>`?
+Phantom-typed wrappers around numeric values (`long`, `int`, `UUID`) that prevent mixing identifiers for different domain entities at compile time. Two generation strategies — random and k-sortable (time-sorted) — are hidden behind a common `IDGenerator` interface, so consuming code never knows or cares how an identifier was minted.
 
 ```java
-        ID<Organization> orgId = null;
-        ID<User> userId = null;
-        myServiceFn(userId, orgId);
+ID<Organization> orgId  = generator.identifier();
+ID<User>         userId = generator.identifier();
 
-        void myServiceFn(ID<Organization> orgId, ID<User> userId) {
-
-        }
+// Compile error: incompatible types
+service.getUser(orgId);
 ```
 
-## ID: 64-bit identifier
+## Identifier types
 
-<table>
-  <thead>
-    <td>Offsets</td>
-    <td>Octet</td>
-    <td colspan="8">0</td>
-    <td colspan="8">1</td>
-    <td colspan="8">2</td>
-    <td colspan="8">3</td>
-  </thead>
-  <tr>
-    <td>Octet</td>
-    <td>Bit</td>
-    <td>0</td>
-    <td>1</td>
-    <td>2</td>
-    <td>3</td>
-    <td>4</td>
-    <td>5</td>
-    <td>6</td>
-    <td>7</td>
-    <td>8</td>
-    <td>9</td>
-    <td>10</td>
-    <td>11</td>
-    <td>12</td>
-    <td>13</td>
-    <td>14</td>
-    <td>15</td>
-    <td>16</td>
-    <td>17</td>
-    <td>18</td>
-    <td>19</td>
-    <td>20</td>
-    <td>21</td>
-    <td>22</td>
-    <td>23</td>
-    <td>24</td>
-    <td>25</td>
-    <td>26</td>
-    <td>27</td>
-    <td>28</td>
-    <td>29</td>
-    <td>30</td>
-    <td>31</td>
-  </tr>
-  <tr>
-    <td>0</td>
-    <td>0</td>
-    <td>r</td>
-    <td colspan="31">timestamp</td>
-  </tr>
-  <tr>
-    <td>4</td>
-    <td>32</td>
-    <td colspan="10">timestamp</td>
-    <td colspan="10">instance</td>
-    <td colspan="12">sequence</td>
-  </tr>
-</table>
+| Type | Storage | Hex string | Use case |
+|------|---------|-----------|----------|
+| `LID<T>` | 32-bit `int` | 8 chars | Locally scoped within a composite key, e.g. `(tenant_id, team_lid)`. Not globally unique. |
+| `ID<T>` | 64-bit `long` | 16 chars | Entity primary key within a single system. Sufficient for the vast majority of workloads — Twitter's ~6,000 tweets/sec would take ~200 million years to exhaust the space. |
+| `GID<T>` | 128-bit `UUID` | UUID format | Globally unique across systems. Conforms to UUID v4 (random) or v7 (k-sortable). |
 
-* r: Reserved signed bit
-* timestamp: 41-bit
-* instance id: 10-bit
-* sequence id: 12-bit
+All three are immutable, `Serializable`, `Comparable`, and carry a phantom type parameter `<T extends IDAble>` for compile-time entity discrimination.
 
-# Limitations
+## Generation strategies
 
-- Max unique identifiers per second:
-- Time wrap-around:
-
-# Performance / benchmarks
-
-# API choices
-
-Why not have the different identifiers lengths share a common base interface?
-There currently isn't a common method between the implementations that isn't already available in other interfaces (
-Comparable)
-or base classes (Object).
-
-## Encoding (hex / base16)
-
-String representations for a 64-bit integer:
-binary: 8 bytes  (100%) -63.6%
-base64: 11 bytes (138%) -50.0%
-base32: 13 bytes (163%) -40.9%
-base16: 16 bytes (200%) -27.3%
-base10: 22 bytes (275%)
-
-Encode performance (Intel MBP 16", i9):
-encode copy baseline?
-base16: 48m/sec
-base32: 11m/sec
-base64: 34m/sec
-
-Why Base 32?
-Example for the 128-bit identifier:
-Binary: 16 bytes
-Base64(Url safe): 20 bytes (20% over base32)
-Base32: 26 bytes (20-21% over hex)
-Base16 / hex: 32 bytes
-UUID Hex: 36 bytes
-
-Space efficiently is important, especially in storage, and we recommend always using a binary representation if
-available.
-For API over textual protocols such as Json or XML, we feel the sweet the spot is Base32.
-
-It's important to be able to pronounce the characters without confusion, as the human-readable text format is primarily
-aimed at humans.
-
-Base32 has been chosen by x, y z also.
-
-A problem with the dashes is that they prevent double-clicking in current OS for copying.
-
-# Development
-
-## UML Diagram
-
-```mermaid
-classDiagram
-    class IDAble
-    <<interface>> IDAble
-    IDGenerator <|-- KSortableIDGenerator
-    IDGenerator <|-- RandomIDGenerator
-
-    IDAble .. ID
-    ID <|.. KSortableIDGenerator
-    ID <|.. RandomIDGenerator
+```
+IDGenerator (interface)
+├── RandomIDGenerator      — SecureRandom bits, no ordering guarantees
+└── KSortableIDGenerator   — time-sorted, monotonic within a clock tick
 ```
 
-## Roadmap
-- fromBits method
-- Benchmarks
-- Deterministic derive methods
-- KSortable ID<T>
-- KSortable LID<T>
-- KSortable GID<T>
-- Jackson Converter
-- Jakarta XmlAdapter
-- Json-B JsonbAdapter
-- Jakarta JAX-RS ParamConverters
-- javax JAX-RS ParamConverters
-- Micronaut TypeConverter
-- Spring Converter
-- BOM module for dependency management
-- AWS SDKv1 Generator node hasher
-- AWS SDKv2 generator node hasher
-- Consul generator node hasher
-- Short and long-lived identifiers (default long-lived)
-- Hibernate UuidGenerator / ID (BeforeExecutionGenerator)
-- Example: Micronaut / data / AWS instance id / postgres
-- Example: Spring / Hibernate / k8s pod id
-- Example: Dropwizard / consul
-- Example: Quarkus / ???
-- BID - Business Identifiers
+A consumer holding an `ID<User>` cannot tell whether it was generated randomly or k-sortably. The types are opaque wrappers; all bit-layout logic lives in the generator.
 
-# Credits & Related work
+```java
+// Random — suitable when ordering doesn't matter
+IDGenerator random = new RandomIDGenerator();
 
-- Snowflake (Twitter)
-  https://github.com/twitter-archive/snowflake
-  https://dl.acm.org/doi/10.5555/70413.70419
-- https://github.com/segmentio/ksuid
-- https://github.com/ksuid/ksuid
-- https://github.com/ulid
-- https://github.com/azam/ulidj
-- https://github.com/jetpack-io/typeid
-- https://www.ietf.org/archive/id/draft-ietf-uuidrev-rfc4122bis-00.html#section-11.2
+// K-sortable — default: single-node, full 22-bit counter
+IDGenerator ksortable = new KSortableIDGenerator();
+
+// K-sortable — 10-bit node, 12-bit counter, dynamic node resolution
+IDGenerator ksortable = KSortableIDGenerator.builder()
+    .nodeBits(10)
+    .nodeIdFactory(() -> resolveFromEnvironment())
+    .build();
+```
+
+## Modules
+
+| Module | Contents |
+|--------|----------|
+| **id** | Core types (`ID`, `LID`, `GID`), `IDGenerator`, `RandomIDGenerator`, `KSortableIDGenerator`, `KSortableIDDebugger` |
+| **jackson** | Jackson `JsonSerializer` / `JsonDeserializer` for all three types |
+| **kotlinx-serialization** | kotlinx-serialization `KSerializer` implementations |
+| **micronaut** | Micronaut `TypeConverter` bindings |
+| **benchmarks** | JMH latency benchmarks at constant request rates |
+
+## Build & test
+
+```sh
+mvn test                    # all modules
+mvn -pl id test             # core module only
+```
+
+## Benchmarks (JMH)
+
+Constant-rate latency benchmarks measuring per-operation time at 1,000 ops/s (ID, GID) and 50 ops/s (LID). Output includes p50 through p99.99 percentiles via JMH `SampleTime` mode.
+
+```sh
+mvn -pl id,benchmarks package -DskipTests
+mvn -pl benchmarks exec:exec -Dbenchmark=IDGenerationBenchmark
+mvn -pl benchmarks exec:exec -Dbenchmark=IDStringBenchmark
+```
+
+---
+
+# Architecture
+
+## K-sortable bit layouts
+
+### GID (128-bit) — UUIDv7, RFC 9562
+
+No design freedom here. The standard dictates the layout.
+
+```
+MSB [63 ·························································· 0]
+     ┌──────────────────────────────────────┬────┬──────────────┐
+     │    48-bit Unix ms timestamp          │ver │  12-bit      │
+     │    (ms since 1970-01-01)             │0111│  rand_a      │
+     └──────────────────────────────────────┴────┴──────────────┘
+LSB [63 ·························································· 0]
+     ┌──┬──────────────────────────────────────────────────────────┐
+     │10│                    62-bit rand_b                         │
+     └──┴──────────────────────────────────────────────────────────┘
+```
+
+- **Epoch**: Unix 1970 (mandated by RFC 9562).
+- **Monotonicity**: `rand_a` is a 12-bit counter that resets to a small random offset ([0, 256)) each new millisecond tick (RFC 9562 Method 1). This gives ~3,840 guaranteed sequential IDs per ms per generator while providing cross-generator collision resistance.
+- **Overflow**: counter exhaustion blocks (spin-waits) until the next ms tick.
+- **Sort correctness**: `GID.compareTo` uses `Long.compareUnsigned` on both halves, so UUIDv7 timestamps sort correctly.
+
+### ID (64-bit) — TSID-style, unsigned
+
+```
+[63 ·························································· 0]
+ ┌─────────────────────────────────────────┬───────────────────┐
+ │  42-bit ms timestamp                    │  22-bit payload   │
+ │  (ms since 2020-01-01)                  │  [node | counter] │
+ └─────────────────────────────────────────┴───────────────────┘
+```
+
+- **Epoch**: 2020-01-01T00:00:00Z (custom). See [ADR-05](docs/adr/adr-005-custom-epoch.md).
+- **Timestamp range**: 2^42 ms ≈ 139.4 years. Rolls over **2159-05-15**.
+- **Payload split**: the 22-bit payload is divided between a static node ID and a monotonic counter. The split is configured at generator construction time:
+
+| Configuration | Node bits | Counter bits | Max nodes | IDs/ms/node |
+|---------------|-----------|-------------|-----------|-------------|
+| Single-node (default) | 0 | 22 | 1 | 4,194,304 |
+| Small cluster | 5 | 17 | 32 | 131,072 |
+| Medium cluster | 10 | 12 | 1,024 | 4,096 |
+| Large cluster | 12 | 10 | 4,096 | 1,024 |
+
+- **Overflow**: counter exhaustion blocks until the next ms tick.
+
+### LID (32-bit) — hour-precision, scoped
+
+```
+[31 ···························· 0]
+ ┌──────────────────┬─────────────┐
+ │  20-bit hour     │  12-bit     │
+ │  timestamp       │  counter    │
+ └──────────────────┴─────────────┘
+```
+
+- **Epoch**: configurable (default 2020-01-01T00:00:00Z). A later epoch extends the usable range for newer deployments.
+- **Precision**: 1 hour. Millisecond-level clock regression within the same hour bucket is harmless — the counter simply keeps incrementing.
+- **Timestamp range**: 2^20 hours ≈ 119.6 years. Rolls over **~2139** from default epoch.
+- **Counter**: 4,096 values per hour per scope.
+- **No node component**: LIDs are scoped by definition (always part of a composite key), so node disambiguation is unnecessary.
+- **Overflow**: counter exhaustion **throws** `IllegalStateException` (not block). At hour precision, an overflow means the caller is misusing the type — they should use `RandomIDGenerator.localIdentifier()` or `ID<T>` instead.
+
+### When NOT to use k-sortable LID
+
+K-sortable LID is appropriate only when all three conditions hold:
+
+1. The LID is scoped within a composite key, so collisions are per-scope.
+2. The generation rate per scope is low (tens to hundreds per hour).
+3. Hour-precision ordering is sufficient.
+
+For high-throughput or globally-unique 32-bit needs, `RandomIDGenerator.localIdentifier()` is correct.
+
+---
+
+## Architectural Decision Records
+
+Full ADRs are maintained in [`docs/adr/`](docs/adr/adr-000-index.md). Summary:
+
+| ADR | Decision |
+|-----|----------|
+| [001](docs/adr/adr-001-unsigned-comparison.md) | Unsigned comparison everywhere — reclaims bit 63 for timestamp |
+| [002](docs/adr/adr-002-phantom-type-parameter.md) | Phantom type `<T extends IDAble>` for compile-time entity safety |
+| [003](docs/adr/adr-003-comparable-wildcard.md) | `Comparable<XID<?>>` wildcard for mixed-type collection sorting |
+| [004](docs/adr/adr-004-opaque-types.md) | Opaque types, all bit-layout logic in the generator |
+| [005](docs/adr/adr-005-custom-epoch.md) | Custom epoch 2020-01-01 — extends rollover to 2159 |
+| [006](docs/adr/adr-006-big-endian-encoding.md) | Big-endian encoding — hex sort = numeric sort |
+| [007](docs/adr/adr-007-serializable-pinned-uid.md) | `Serializable` with pinned `serialVersionUID` |
+| [008](docs/adr/adr-008-securerandom-sha1prng.md) | SHA1PRNG for non-blocking latency |
+| [009](docs/adr/adr-009-clock-regression-policy.md) | Clock regression — spin ≤1s, throw >1s |
+| [010](docs/adr/adr-010-counter-overflow-policy.md) | Counter overflow — block (ID/GID) vs throw (LID) |
+| [011](docs/adr/adr-011-no-common-base-interface.md) | No common base interface for ID types |
+| [012](docs/adr/adr-012-synchronized-thread-safety.md) | Thread safety via `synchronized` |
+
+---
+
+## Operational limits
+
+| Property | ID (64-bit) | LID (32-bit) | GID (128-bit) |
+|----------|-------------|------------|--------------|
+| Timestamp bits | 42 | 20 | 48 |
+| Timestamp precision | 1 ms | 1 hour | 1 ms |
+| Timestamp range | ~139 years | ~119 years | ~8,919 years |
+| Rollover date (default epoch) | 2159-05-15 | ~2139 | ~10889 |
+| Counter bits (default) | 22 | 12 | 12 |
+| Max IDs per tick per node | 4,194,304 | 4,096 | ~3,840 (randomized init) |
+| Counter overflow behavior | Block ≤1ms | Throw | Block ≤1ms |
+| Clock regression tolerance | ≤1s spin, >1s throw | Hour-boundary throw | ≤1s spin, >1s throw |
+| Epoch | 2020-01-01 | Configurable (default 2020-01-01) | Unix 1970 (RFC 9562) |
+
+## Prior art comparison
+
+| Scheme | Bits | Timestamp | Precision | Node | Counter/Random | Epoch |
+|--------|------|-----------|-----------|------|---------------|-------|
+| **Jdentifiers ID** | **64** | **42** | **1 ms** | **0–22 (configurable)** | **22–0 monotonic** | **Custom 2020** |
+| Snowflake (Twitter) | 64 | 41 | 1 ms | 10 (fixed) | 12 sequential | Custom |
+| TSID (Hibernate) | 64 | 42 | 1 ms | 0–22 (configurable) | 22–0 sequential | Custom 2020 |
+| **Jdentifiers GID** | **128** | **48** | **1 ms** | **none** | **12 seq + 62 rand** | **Unix 1970** |
+| UUIDv7 (RFC 9562) | 128 | 48 | 1 ms | none | 12 seq + 62 rand | Unix 1970 |
+| ULID | 128 | 48 | 1 ms | none | 80 random | Unix 1970 |
+| KSUID (Segment) | 160 | 32 | 1 s | none | 128 random | Custom 2014 |
+
+Jdentifiers ID is most closely related to [TSID](https://github.com/vladmihalcea/hypersistence-tsid). The key difference is that Jdentifiers separates the ID *type* from the generation *strategy* — the `ID<T>` wrapper is opaque and generator-agnostic.
+
+## Java version
+
+Requires JDK 17+.
+
+## Credits & related work
+
+- Snowflake (Twitter) — https://github.com/twitter-archive/snowflake, https://dl.acm.org/doi/10.5555/70413.70419
+- TSID (Vlad Mihalcea / Hibernate) — https://vladmihalcea.com/tsid-identifier-jpa-hibernate/, https://github.com/vladmihalcea/hypersistence-tsid
+- KSUID (Segment) — https://github.com/segmentio/ksuid, https://github.com/ksuid/ksuid
+- ULID — https://github.com/ulid, https://github.com/azam/ulidj
+- TypeID — https://github.com/jetpack-io/typeid
+- UUIDv7 (RFC 9562) — https://www.rfc-editor.org/rfc/rfc9562

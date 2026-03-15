@@ -1,8 +1,11 @@
 package dk.ceti.jdentifiers.benchmarks;
 
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
@@ -14,14 +17,17 @@ import dk.ceti.jdentifiers.id.IDAble;
 import dk.ceti.jdentifiers.id.LID;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Benchmark string conversion for the various ID implementations.
+ * Latency benchmark for string conversion (parsing and formatting).
  * <p>
- * Each {@code @Benchmark} method returns its result so JMH implicitly consumes it,
- * preventing dead-code elimination without an explicit {@code Blackhole}.
+ * No pacing is applied — these are pure CPU operations with no time-dependent
+ * state. {@link Mode#SampleTime} gives per-invocation latency distributions.
  */
 @State(Scope.Benchmark)
+@BenchmarkMode(Mode.SampleTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 3, time = 1)
 @Measurement(iterations = 5, time = 1)
 @Fork(value = 1)

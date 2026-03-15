@@ -24,7 +24,8 @@ Benchmark classes are in `benchmarks/src/main/java`. Build the shaded JAR then r
 ```sh
 mvn -pl id,benchmarks package -DskipTests
 mvn -pl benchmarks exec:exec -Dbenchmark=IDStringBenchmark
-mvn -pl benchmarks exec:exec -Dbenchmark=IDGenerationBenchmark
+mvn -pl benchmarks exec:exec -Dbenchmark=IDThroughputGenerationBenchmark
+mvn -pl benchmarks exec:exec -Dbenchmark=IDLatencyGenerationBenchmark
 ```
 
 ## Key Design Decisions
