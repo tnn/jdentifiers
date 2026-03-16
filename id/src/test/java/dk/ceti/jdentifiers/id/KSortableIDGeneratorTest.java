@@ -816,6 +816,38 @@ class KSortableIDGeneratorTest {
         assertEquals(1023, gen.nodeId());
     }
 
+    // ---- Builder.copy() tests ----
+
+    @Test
+    void builder_copy_preserves_configuration() {
+        KSortableIDGenerator.Builder original = KSortableIDGenerator.builder()
+            .nodeBits(10)
+            .nodeId(42)
+            .lidEpoch(Instant.parse("2024-01-01T00:00:00Z"));
+
+        KSortableIDGenerator gen1 = original.copy().build();
+        KSortableIDGenerator gen2 = original.copy().build();
+
+        assertEquals(gen1.nodeBits(), gen2.nodeBits());
+        assertEquals(gen1.nodeId(), gen2.nodeId());
+        assertEquals(gen1.counterBits(), gen2.counterBits());
+        assertEquals(gen1.lidEpochMs(), gen2.lidEpochMs());
+    }
+
+    @Test
+    void separate_instances_have_independent_counters() {
+        TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
+        KSortableIDGenerator.Builder base = KSortableIDGenerator.builder().clock(clock);
+        KSortableIDGenerator gen1 = base.copy().build();
+        KSortableIDGenerator gen2 = base.copy().build();
+
+        // Both generators produce counter=0 for the same timestamp
+        ID<A> id1 = gen1.identifier();
+        ID<A> id2 = gen2.identifier();
+        assertEquals(id1.asLong(), id2.asLong(),
+            "Independent generators should produce identical values for same timestamp + counter");
+    }
+
     // ---- Thread safety test ----
 
     @Test

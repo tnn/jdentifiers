@@ -14,3 +14,4 @@
 | [ADR-010](adr-010-counter-overflow-policy.md) | Counter overflow policy — block vs. throw | Accepted |
 | [ADR-011](adr-011-no-common-base-interface.md) | No common base interface for ID types | Accepted |
 | [ADR-012](adr-012-synchronized-thread-safety.md) | Thread safety via `synchronized` | Accepted |
+| [ADR-013](adr-013-shared-counter-across-phantom-types.md) | Shared counter across phantom types | Accepted |

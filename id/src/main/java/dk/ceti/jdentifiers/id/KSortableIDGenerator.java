@@ -24,6 +24,24 @@ import java.util.function.IntSupplier;
  * Thread-safe: each generation method is guarded by a dedicated lock, so a
  * spin-wait in one method cannot block the others.
  *
+ * <h3>Per-entity-type isolation</h3>
+ * A single generator instance shares counter state across all phantom types —
+ * {@code ID<User>} and {@code ID<Organization>} draw from the same counter.
+ * This guarantees that all IDs produced by one generator have distinct numeric
+ * values, even across entity types (useful for untyped storage and logging).
+ * <p>
+ * If per-entity-type throughput isolation is needed (independent counter spaces),
+ * create separate generator instances from a shared builder:
+ * <pre>{@code
+ * KSortableIDGenerator.Builder base = KSortableIDGenerator.builder()
+ *     .nodeBits(10).nodeId(42);
+ * KSortableIDGenerator userGen = base.copy().build();
+ * KSortableIDGenerator orgGen  = base.copy().build();
+ * }</pre>
+ * Note: IDs from separate generators may have identical numeric values for the
+ * same timestamp. Use this pattern only when entity types are stored in
+ * type-discriminated columns or tables.
+ *
  * @see RandomIDGenerator
  */
 public class KSortableIDGenerator implements IDGenerator {
@@ -363,6 +381,22 @@ public class KSortableIDGenerator implements IDGenerator {
         public Builder lidEpoch(Instant epoch) {
             this.lidEpoch = Objects.requireNonNull(epoch, "epoch");
             return this;
+        }
+
+        /**
+         * Returns a new Builder pre-populated with this builder's configuration.
+         * Useful for creating multiple identically-configured generator instances
+         * when per-entity-type counter isolation is desired.
+         */
+        public Builder copy() {
+            Builder b = new Builder();
+            b.clock = this.clock;
+            b.nodeBits = this.nodeBits;
+            b.nodeId = this.nodeId;
+            b.nodeIdFactory = this.nodeIdFactory;
+            b.lidEpoch = this.lidEpoch;
+            b.maxSpinNanos = this.maxSpinNanos;
+            return b;
         }
 
         // Package-private — visible for testing
