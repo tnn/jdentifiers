@@ -31,12 +31,24 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
     }
 
     /**
-     * Create instance from primitive long.
+     * Wraps the given long value.
+     *
+     * @param <R> the entity type
+     * @param bits the raw 64-bit value
+     * @return a new ID
      */
     public static <R extends IDAble> ID<R> fromLong(long bits) {
         return new ID<>(bits);
     }
 
+    /**
+     * Parses a 16-character lowercase hex string into an ID.
+     *
+     * @param <T> the entity type
+     * @param idSequence the hex string (must be exactly 16 characters)
+     * @return the parsed ID
+     * @throws IllegalArgumentException if the string length is not 16 or contains invalid hex digits
+     */
     public static <T extends IDAble> ID<T> fromString(final CharSequence idSequence) {
         Objects.requireNonNull(idSequence, "idSequence must not be null");
         if (idSequence.length() != ID_STRING_LENGTH) {
@@ -67,11 +79,23 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
         return new ID<>(bits);
     }
 
+    /**
+     * Re-types an ID. Safe because the phantom type is erased at runtime.
+     *
+     * @param <I> the target entity type
+     * @param id the ID to re-type
+     * @return the same instance, re-typed
+     */
     @SuppressWarnings("unchecked")
     public static <I extends IDAble> ID<I> cast(ID<? extends IDAble> id) {
         return (ID<I>) id;
     }
 
+    /**
+     * Returns the underlying {@code long} value.
+     *
+     * @return the raw bits
+     */
     public long asLong() {
         return bits;
     }
@@ -108,6 +132,7 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
     /**
      * Returns a URL-safe, unpadded Base64 encoding of this ID in big-endian byte order.
      *
+     * @return the Base64 string
      * @see #fromBase64String(CharSequence)
      */
     public String toBase64String() {
@@ -128,6 +153,10 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
      * <p>
      * Accepts {@link CharSequence} for API consistency; internally calls {@code toString()}.
      *
+     * @param <T> the entity type
+     * @param base64 the Base64 encoded string
+     * @return the decoded ID
+     * @throws IllegalArgumentException if the decoded bytes are not exactly 8
      * @see #toBase64String()
      */
     public static <T extends IDAble> ID<T> fromBase64String(CharSequence base64) {

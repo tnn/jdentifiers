@@ -24,10 +24,25 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
         this.bits = bits;
     }
 
+    /**
+     * Wraps the given int value.
+     *
+     * @param <T> the entity type
+     * @param bits the raw 32-bit value
+     * @return a new LID
+     */
     public static <T extends IDAble> LID<T> fromInteger(int bits) {
         return new LID<>(bits);
     }
 
+    /**
+     * Parses an 8-character lowercase hex string into a LID.
+     *
+     * @param <T> the entity type
+     * @param idSequence the hex string (must be exactly 8 characters)
+     * @return the parsed LID
+     * @throws IllegalArgumentException if the string length is not 8 or contains invalid hex digits
+     */
     public static <T extends IDAble> LID<T> fromString(final CharSequence idSequence) {
         Objects.requireNonNull(idSequence, "idSequence must not be null");
         if (idSequence.length() != LID_STRING_LENGTH) {
@@ -48,11 +63,23 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
         return new LID<>(bits);
     }
 
+    /**
+     * Re-types a LID. Safe because the phantom type is erased at runtime.
+     *
+     * @param <I> the target entity type
+     * @param id the LID to re-type
+     * @return the same instance, re-typed
+     */
     @SuppressWarnings("unchecked")
     public static <I extends IDAble> LID<I> cast(LID<? extends IDAble> id) {
         return (LID<I>) id;
     }
 
+    /**
+     * Returns the underlying {@code int} value.
+     *
+     * @return the raw bits
+     */
     public int toInteger() {
         return bits;
     }

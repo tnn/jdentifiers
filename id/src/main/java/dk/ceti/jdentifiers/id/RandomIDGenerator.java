@@ -3,8 +3,20 @@ package dk.ceti.jdentifiers.id;
 import java.security.SecureRandom;
 import java.util.UUID;
 
+/**
+ * ID generator that produces uniformly random (non-sortable) identifiers.
+ *
+ * @see KSortableIDGenerator
+ */
 public class RandomIDGenerator implements IDGenerator {
+
     private static final SecureRandom numberGenerator = SecureRandoms.create();
+
+    /**
+     * Creates a new random ID generator.
+     */
+    public RandomIDGenerator() {}
+
 
     @Override
     public <T extends IDAble> LID<T> localIdentifier() {

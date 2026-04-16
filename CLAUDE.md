@@ -39,3 +39,41 @@ mvn -pl benchmarks exec:exec -Dbenchmark=IDLatencyGenerationBenchmark
 ## Java Version
 
 Requires JDK 17+.
+
+## Releasing to Maven Central
+
+### Prerequisites (one-time setup)
+1. Create an account at https://central.sonatype.com
+2. Claim the `dk.ceti` namespace (requires DNS TXT record on `ceti.dk`)
+3. Generate a GPG keypair and publish it to `keys.openpgp.org`
+4. Add server credentials to `~/.m2/settings.xml`:
+   ```xml
+   <servers>
+     <server>
+       <id>central</id>
+       <username><!-- Central Portal token username --></username>
+       <password><!-- Central Portal token password --></password>
+     </server>
+   </servers>
+   ```
+
+### Release steps
+```sh
+# 1. Set release version
+mvn versions:set -DnewVersion=0.2.0
+mvn versions:commit
+
+# 2. Build, sign, and publish
+mvn clean deploy -Prelease
+
+# 3. Verify on https://central.sonatype.com, then tag
+git commit -am "Release 0.2.0"
+git tag v0.2.0
+git push && git push --tags
+
+# 4. Bump to next SNAPSHOT
+mvn versions:set -DnewVersion=0.3.0-SNAPSHOT
+mvn versions:commit
+git commit -am "Bump to 0.3.0-SNAPSHOT"
+git push
+```

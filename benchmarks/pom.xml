@@ -12,6 +12,11 @@
   <artifactId>jdentifiers-benchmarks</artifactId>
   <name>Jdentifiers :: Benchmarks</name>
 
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <maven.install.skip>true</maven.install.skip>
+  </properties>
+
   <build>
     <plugins>
       <plugin>

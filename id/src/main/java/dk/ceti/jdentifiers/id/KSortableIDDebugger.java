@@ -13,6 +13,10 @@ public final class KSortableIDDebugger {
 
     /**
      * Analyzes a k-sortable 64-bit ID using the given generator's configuration.
+     *
+     * @param id        the identifier to analyze
+     * @param generator the generator whose configuration to use
+     * @return human-readable debug string
      */
     public static String debug(ID<?> id, KSortableIDGenerator generator) {
         return debugId(id, generator.nodeBits(), KSortableIDGenerator.DEFAULT_EPOCH_MS);
@@ -24,6 +28,7 @@ public final class KSortableIDDebugger {
      * @param id        the identifier to analyze
      * @param nodeBits  number of bits allocated to the node ID (0–22)
      * @param epochMs   custom epoch in Unix milliseconds
+     * @return human-readable debug string
      */
     public static String debugId(ID<?> id, int nodeBits, long epochMs) {
         long bits = id.asLong();
@@ -53,6 +58,10 @@ public final class KSortableIDDebugger {
 
     /**
      * Analyzes a k-sortable 32-bit LID using the given generator's configuration.
+     *
+     * @param lid       the local identifier to analyze
+     * @param generator the generator whose configuration to use
+     * @return human-readable debug string
      */
     public static String debug(LID<?> lid, KSortableIDGenerator generator) {
         return debugLid(lid, generator.lidEpochMs());
@@ -63,6 +72,7 @@ public final class KSortableIDDebugger {
      *
      * @param lid      the local identifier to analyze
      * @param epochMs  custom epoch in Unix milliseconds
+     * @return human-readable debug string
      */
     public static String debugLid(LID<?> lid, long epochMs) {
         int bits = lid.toInteger();
@@ -84,6 +94,9 @@ public final class KSortableIDDebugger {
 
     /**
      * Analyzes a UUIDv7 global identifier.
+     *
+     * @param gid the global identifier to analyze
+     * @return human-readable debug string
      */
     public static String debug(GID<?> gid) {
         UUID uuid = gid.asUUID();

@@ -14,6 +14,8 @@ import java.util.UUID;
  * <p>
  * Wraps a {@link UUID} with a phantom type parameter for compile-time type safety.
  * Supports any UUID variant (v4, v7, etc.).
+ *
+ * @param <T> phantom type for compile-time type safety
  */
 public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
 
@@ -33,6 +35,9 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
      * and {@link LID#fromString}. Note: internally calls {@code toString()} on the
      * input because {@link UUID#fromString} requires a {@link String}.
      *
+     * @param <R> the entity type
+     * @param gidStr UUID string representation
+     * @return the parsed GID
      * @throws IllegalArgumentException if the string is not a valid UUID
      * @throws NullPointerException if gidStr is null
      */
@@ -41,10 +46,24 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
         return new GID<>(UUID.fromString(gidStr.toString()));
     }
 
+    /**
+     * Wraps the given UUID.
+     *
+     * @param <R> the entity type
+     * @param uuid the UUID value
+     * @return a new GID
+     */
     public static <R extends IDAble> GID<R> fromUuid(UUID uuid) {
         return new GID<>(uuid);
     }
 
+    /**
+     * Converts UUIDs to an unmodifiable list of GIDs.
+     *
+     * @param <T> the entity type
+     * @param uuids the UUID values
+     * @return unmodifiable list
+     */
     public static <T extends IDAble> List<GID<T>> fromUUIDs(Iterable<UUID> uuids) {
         Objects.requireNonNull(uuids);
 
@@ -61,11 +80,23 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
         return Collections.unmodifiableList(ids);
     }
 
+    /**
+     * Re-types a GID. Safe because the phantom type is erased at runtime.
+     *
+     * @param <I> the target entity type
+     * @param id the GID to re-type
+     * @return the same instance, re-typed
+     */
     @SuppressWarnings("unchecked")
     public static <I extends IDAble> GID<I> cast(GID<? extends IDAble> id) {
         return (GID<I>) id;
     }
 
+    /**
+     * Returns the underlying {@link UUID}.
+     *
+     * @return the UUID value
+     */
     public UUID asUUID() {
         return uuid;
     }
