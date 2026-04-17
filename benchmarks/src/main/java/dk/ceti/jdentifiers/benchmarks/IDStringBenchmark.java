@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Latency benchmark for string conversion (parsing and formatting).
- * <p>
- * No pacing is applied — these are pure CPU operations with no time-dependent
+ *
+ * <p>No pacing is applied — these are pure CPU operations with no time-dependent
  * state. {@link Mode#SampleTime} gives per-invocation latency distributions.
  */
 @State(Scope.Benchmark)
@@ -40,9 +40,9 @@ public class IDStringBenchmark implements IDAble {
 
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()
-                .include(".*" + IDStringBenchmark.class.getName() + ".*")
-                .build())
-                .run();
+            .include(".*" + IDStringBenchmark.class.getName() + ".*")
+            .build())
+            .run();
     }
 
     @Benchmark

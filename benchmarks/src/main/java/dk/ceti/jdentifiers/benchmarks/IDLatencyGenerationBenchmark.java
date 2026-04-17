@@ -26,17 +26,17 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * Latency benchmark for ID generation at constant request rates.
- * <p>
- * Warmup runs at a high rate for 10 seconds to trigger JIT compilation and reach
+ *
+ * <p>Warmup runs at a high rate for 10 seconds to trigger JIT compilation and reach
  * steady state. After a 1-second pause, measurement runs at a lower rate for 1 second.
- * <p>
- * Rates:
+ *
+ * <p>Rates:
  * <ul>
  *   <li>ID/GID (64-bit, 128-bit): warmup 10,000 ops/s, measurement 1,000 ops/s</li>
  *   <li>LID (32-bit): warmup 200 ops/s, measurement 50 ops/s (capped by 4,096/hour k-sortable counter)</li>
  * </ul>
- * <p>
- * JMH {@link Mode#SampleTime} records per-invocation latency including the pacing sleep,
+ *
+ * <p>JMH {@link Mode#SampleTime} records per-invocation latency including the pacing sleep,
  * so the p50 reflects the target interval while p99+ percentiles reveal tail latency
  * caused by synchronization, counter overflow blocking, or clock reads.
  */
@@ -50,21 +50,24 @@ import java.util.concurrent.locks.LockSupport;
 public class IDLatencyGenerationBenchmark {
     private static final IDGenerator ksortableGen = new KSortableIDGenerator();
 
+    /**
+     * Runs the benchmark via the JMH runner.
+     */
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()
-                .include(".*" + IDLatencyGenerationBenchmark.class.getName() + ".*")
-                .build())
-                .run();
+            .include(".*" + IDLatencyGenerationBenchmark.class.getName() + ".*")
+            .build())
+            .run();
     }
 
     /**
      * Rate-limiting pacer with separate warmup and measurement rates.
-     * <p>
-     * During warmup, paces at a high rate to drive JIT compilation.
+     *
+     * <p>During warmup, paces at a high rate to drive JIT compilation.
      * Before the measurement iteration, pauses 1 second to let the system settle,
      * then paces at the measurement rate.
      */
-    public static abstract class Pacer {
+    public abstract static class Pacer {
         private final long warmupIntervalNs;
         private final long measurementIntervalNs;
         private static final long PAUSE_NS = 1_000_000_000L; // 1 second
@@ -73,11 +76,17 @@ public class IDLatencyGenerationBenchmark {
         private long nextNs;
         private boolean warmedUp;
 
+        /**
+         * Creates a pacer with the given warmup and measurement intervals.
+         */
         protected Pacer(long warmupIntervalNs, long measurementIntervalNs) {
             this.warmupIntervalNs = warmupIntervalNs;
             this.measurementIntervalNs = measurementIntervalNs;
         }
 
+        /**
+         * Resets the pacer at the start of each iteration.
+         */
         @Setup(Level.Iteration)
         public void reset() {
             if (!warmedUp) {
@@ -90,6 +99,9 @@ public class IDLatencyGenerationBenchmark {
             nextNs = System.nanoTime();
         }
 
+        /**
+         * Sleeps until the next scheduled invocation time.
+         */
         public void pace() {
             nextNs += intervalNs;
             long delta = nextNs - System.nanoTime();

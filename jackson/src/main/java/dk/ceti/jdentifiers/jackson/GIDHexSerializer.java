@@ -19,7 +19,7 @@ public class GIDHexSerializer extends StdScalarSerializer<GID<?>> {
 
     @Override
     public void serialize(GID<?> value, JsonGenerator gen, SerializerProvider serializers)
-            throws IOException {
+        throws IOException {
         gen.writeString(value.toString());
     }
 }

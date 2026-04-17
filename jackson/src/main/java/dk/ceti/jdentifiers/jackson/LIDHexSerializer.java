@@ -19,7 +19,7 @@ public class LIDHexSerializer extends StdScalarSerializer<LID<?>> {
 
     @Override
     public void serialize(LID<?> value, JsonGenerator gen, SerializerProvider serializers)
-            throws IOException {
+        throws IOException {
         gen.writeString(value.toString());
     }
 }

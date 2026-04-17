@@ -19,7 +19,7 @@ public class IDHexSerializer extends StdScalarSerializer<ID<?>> {
 
     @Override
     public void serialize(ID<?> value, JsonGenerator gen, SerializerProvider serializers)
-            throws IOException {
+        throws IOException {
         gen.writeString(value.toString());
     }
 }

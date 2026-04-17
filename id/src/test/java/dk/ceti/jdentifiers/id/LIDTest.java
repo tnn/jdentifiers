@@ -135,7 +135,7 @@ class LIDTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         new ObjectOutputStream(baos).writeObject(original);
         LID<?> deserialized = (LID<?>) new ObjectInputStream(
-                new ByteArrayInputStream(baos.toByteArray())).readObject();
+            new ByteArrayInputStream(baos.toByteArray())).readObject();
         assertEquals(original, deserialized);
     }
 
@@ -174,13 +174,13 @@ class LIDTest {
 
     static Stream<Arguments> boundaryValues() {
         return Stream.of(
-                Arguments.of(0, "00000000"),
-                Arguments.of(1, "00000001"),
-                Arguments.of(-1, "ffffffff"),
-                Arguments.of(Integer.MAX_VALUE, "7fffffff"),
-                Arguments.of(Integer.MIN_VALUE, "80000000"),
-                Arguments.of(0x01234567, "01234567"),
-                Arguments.of(0x89abcdef, "89abcdef")
+            Arguments.of(0, "00000000"),
+            Arguments.of(1, "00000001"),
+            Arguments.of(-1, "ffffffff"),
+            Arguments.of(Integer.MAX_VALUE, "7fffffff"),
+            Arguments.of(Integer.MIN_VALUE, "80000000"),
+            Arguments.of(0x01234567, "01234567"),
+            Arguments.of(0x89abcdef, "89abcdef")
         );
     }
 

@@ -8,12 +8,15 @@ import java.util.Objects;
 
 /**
  * 64-bit identifier stored as an unsigned {@code long}.
- * <p>
- * String representations use big-endian (most-significant-nibble-first) encoding:
+ *
+ * <p>String representations use big-endian
+ * (most-significant-nibble-first) encoding:
  * <ul>
  *   <li>{@link #toString()} / {@link #fromString(CharSequence)} — 16 lowercase hex characters.
  *       Lexicographic hex ordering is consistent with unsigned numeric ordering.</li>
- *   <li>{@link #toBase64String()} / {@link #fromBase64String(CharSequence)} — URL-safe Base64, unpadded.
+ *   <li>{@link #toBase64String()} /
+ *       {@link #fromBase64String(CharSequence)}
+ *       — URL-safe Base64, unpadded.
  *       Base64 string ordering does <em>not</em> match numeric ordering;
  *       use {@link #compareTo} for correct ordering.</li>
  * </ul>
@@ -47,13 +50,17 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
      * @param <T>        the entity type
      * @param idSequence the hex string (must be exactly 16 characters)
      * @return the parsed ID
-     * @throws IllegalArgumentException if the string length is not 16 or contains invalid hex digits
+     * @throws IllegalArgumentException if the string length is not 16
+     *                                  or contains invalid hex digits
      */
     public static <T extends IDAble> ID<T> fromString(final CharSequence idSequence) {
         Objects.requireNonNull(idSequence, "idSequence must not be null");
         if (idSequence.length() != ID_STRING_LENGTH) {
             throw new IllegalArgumentException(
-                    "Invalid ID string: expected " + ID_STRING_LENGTH + " hex chars, got " + idSequence.length());
+                "Invalid ID string: expected "
+                    + ID_STRING_LENGTH
+                    + " hex chars, got "
+                    + idSequence.length());
         }
 
         long bits = (long) HexCodec.getHexValue(idSequence.charAt(0)) << 60;
@@ -145,13 +152,18 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
         b[5] = (byte) (bits >> 16);
         b[6] = (byte) (bits >> 8);
         b[7] = (byte) bits;
-        return new String(Base64.getUrlEncoder().withoutPadding().encode(b), StandardCharsets.ISO_8859_1);
+        return new String(
+            Base64.getUrlEncoder().withoutPadding().encode(b),
+            StandardCharsets.ISO_8859_1
+        );
     }
 
     /**
-     * Creates an ID from a URL-safe Base64 string (padded or unpadded) in big-endian byte order.
-     * <p>
-     * Accepts {@link CharSequence} for API consistency; internally calls {@code toString()}.
+     * Creates an ID from a URL-safe Base64 string
+     * (padded or unpadded) in big-endian byte order.
+     *
+     * <p>Accepts {@link CharSequence} for API consistency;
+     * internally calls {@code toString()}.
      *
      * @param <T>    the entity type
      * @param base64 the Base64 encoded string
@@ -164,16 +176,16 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
         byte[] b = Base64.getUrlDecoder().decode(base64.toString());
         if (b.length != Long.BYTES) {
             throw new IllegalArgumentException(
-                    "Invalid base64 ID: expected 8 bytes, got " + b.length);
+                "Invalid base64 ID: expected 8 bytes, got " + b.length);
         }
         long bits = ((long) (b[0] & 0xFF) << 56)
-                | ((long) (b[1] & 0xFF) << 48)
-                | ((long) (b[2] & 0xFF) << 40)
-                | ((long) (b[3] & 0xFF) << 32)
-                | ((long) (b[4] & 0xFF) << 24)
-                | ((long) (b[5] & 0xFF) << 16)
-                | ((long) (b[6] & 0xFF) << 8)
-                | (long) (b[7] & 0xFF);
+            | ((long) (b[1] & 0xFF) << 48)
+            | ((long) (b[2] & 0xFF) << 40)
+            | ((long) (b[3] & 0xFF) << 32)
+            | ((long) (b[4] & 0xFF) << 24)
+            | ((long) (b[5] & 0xFF) << 16)
+            | ((long) (b[6] & 0xFF) << 8)
+            | (long) (b[7] & 0xFF);
         return new ID<>(bits);
     }
 

@@ -23,7 +23,8 @@ public class IDHexDeserializer extends StdScalarDeserializer<ID<?>> {
             return ID.fromString(text);
         } catch (IllegalArgumentException e) {
             return (ID<?>) ctxt.handleWeirdStringValue(ID.class, text,
-                    "Invalid ID format: %s", e.getMessage());
+                "Invalid ID format: %s", e.getMessage()
+            );
         }
     }
 }
