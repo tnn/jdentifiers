@@ -12,14 +12,14 @@ public class LIDHexSerializer extends StdScalarSerializer<LID<?>> {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public LIDHexSerializer() {
         super((Class) LID.class);
     }
 
     @Override
     public void serialize(LID<?> value, JsonGenerator gen, SerializerProvider serializers)
-        throws IOException {
+            throws IOException {
         gen.writeString(value.toString());
     }
 }

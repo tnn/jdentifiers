@@ -25,7 +25,7 @@ public class GIDHexDeserializer extends StdScalarDeserializer<GID<?>> {
             // Use Jackson's helper to create a JsonMappingException
             // This automatically attaches line/column numbers and the field path
             return (GID<?>) ctxt.handleWeirdStringValue(GID.class, text,
-                "Invalid GID format: %s", e.getMessage());
+                    "Invalid GID format: %s", e.getMessage());
         }
     }
 }

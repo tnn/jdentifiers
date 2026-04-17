@@ -134,9 +134,9 @@ class IDTest {
     @Test
     void collections_sort_unsigned_ordering() {
         final ID<A> zero = ID.fromLong(0L);
-        final ID<A> mid  = ID.fromLong(Long.MAX_VALUE);
+        final ID<A> mid = ID.fromLong(Long.MAX_VALUE);
         final ID<A> high = ID.fromLong(Long.MIN_VALUE);
-        final ID<A> max  = ID.fromLong(-1L);
+        final ID<A> max = ID.fromLong(-1L);
 
         List<ID<A>> list = new ArrayList<>(List.of(max, zero, high, mid));
         Collections.sort(list);
@@ -161,7 +161,7 @@ class IDTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         new ObjectOutputStream(baos).writeObject(original);
         ID<?> deserialized = (ID<?>) new ObjectInputStream(
-            new ByteArrayInputStream(baos.toByteArray())).readObject();
+                new ByteArrayInputStream(baos.toByteArray())).readObject();
         assertEquals(original, deserialized);
     }
 

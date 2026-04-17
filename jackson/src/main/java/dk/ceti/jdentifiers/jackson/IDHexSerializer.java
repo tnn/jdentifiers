@@ -12,14 +12,14 @@ public class IDHexSerializer extends StdScalarSerializer<ID<?>> {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public IDHexSerializer() {
         super((Class) ID.class);
     }
 
     @Override
     public void serialize(ID<?> value, JsonGenerator gen, SerializerProvider serializers)
-        throws IOException {
+            throws IOException {
         gen.writeString(value.toString());
     }
 }

@@ -2,9 +2,9 @@ package dk.ceti.jdentifiers.kotlinx.serialization
 
 import dk.ceti.jdentifiers.id.GID
 import dk.ceti.jdentifiers.id.IDAble
-import kotlinx.serialization.json.Json
-import java.util.UUID
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

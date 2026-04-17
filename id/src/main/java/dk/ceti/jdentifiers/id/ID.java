@@ -33,7 +33,7 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
     /**
      * Wraps the given long value.
      *
-     * @param <R> the entity type
+     * @param <R>  the entity type
      * @param bits the raw 64-bit value
      * @return a new ID
      */
@@ -44,7 +44,7 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
     /**
      * Parses a 16-character lowercase hex string into an ID.
      *
-     * @param <T> the entity type
+     * @param <T>        the entity type
      * @param idSequence the hex string (must be exactly 16 characters)
      * @return the parsed ID
      * @throws IllegalArgumentException if the string length is not 16 or contains invalid hex digits
@@ -83,7 +83,7 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
      * Re-types an ID. Safe because the phantom type is erased at runtime.
      *
      * @param <I> the target entity type
-     * @param id the ID to re-type
+     * @param id  the ID to re-type
      * @return the same instance, re-typed
      */
     @SuppressWarnings("unchecked")
@@ -153,7 +153,7 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
      * <p>
      * Accepts {@link CharSequence} for API consistency; internally calls {@code toString()}.
      *
-     * @param <T> the entity type
+     * @param <T>    the entity type
      * @param base64 the Base64 encoded string
      * @return the decoded ID
      * @throws IllegalArgumentException if the decoded bytes are not exactly 8
@@ -164,16 +164,16 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
         byte[] b = Base64.getUrlDecoder().decode(base64.toString());
         if (b.length != Long.BYTES) {
             throw new IllegalArgumentException(
-                "Invalid base64 ID: expected 8 bytes, got " + b.length);
+                    "Invalid base64 ID: expected 8 bytes, got " + b.length);
         }
         long bits = ((long) (b[0] & 0xFF) << 56)
-                  | ((long) (b[1] & 0xFF) << 48)
-                  | ((long) (b[2] & 0xFF) << 40)
-                  | ((long) (b[3] & 0xFF) << 32)
-                  | ((long) (b[4] & 0xFF) << 24)
-                  | ((long) (b[5] & 0xFF) << 16)
-                  | ((long) (b[6] & 0xFF) << 8)
-                  |  (long) (b[7] & 0xFF);
+                | ((long) (b[1] & 0xFF) << 48)
+                | ((long) (b[2] & 0xFF) << 40)
+                | ((long) (b[3] & 0xFF) << 32)
+                | ((long) (b[4] & 0xFF) << 24)
+                | ((long) (b[5] & 0xFF) << 16)
+                | ((long) (b[6] & 0xFF) << 8)
+                | (long) (b[7] & 0xFF);
         return new ID<>(bits);
     }
 

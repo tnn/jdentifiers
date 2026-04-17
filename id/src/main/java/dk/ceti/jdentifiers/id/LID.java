@@ -27,7 +27,7 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
     /**
      * Wraps the given int value.
      *
-     * @param <T> the entity type
+     * @param <T>  the entity type
      * @param bits the raw 32-bit value
      * @return a new LID
      */
@@ -38,7 +38,7 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
     /**
      * Parses an 8-character lowercase hex string into a LID.
      *
-     * @param <T> the entity type
+     * @param <T>        the entity type
      * @param idSequence the hex string (must be exactly 8 characters)
      * @return the parsed LID
      * @throws IllegalArgumentException if the string length is not 8 or contains invalid hex digits
@@ -67,7 +67,7 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
      * Re-types a LID. Safe because the phantom type is erased at runtime.
      *
      * @param <I> the target entity type
-     * @param id the LID to re-type
+     * @param id  the LID to re-type
      * @return the same instance, re-typed
      */
     @SuppressWarnings("unchecked")

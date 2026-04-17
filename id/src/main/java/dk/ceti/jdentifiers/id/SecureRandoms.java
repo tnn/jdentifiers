@@ -15,7 +15,8 @@ final class SecureRandoms {
 
     private static final String[] ALGORITHMS = {"DRBG", "SHA1PRNG"};
 
-    private SecureRandoms() {}
+    private SecureRandoms() {
+    }
 
     static SecureRandom create() {
         for (String algorithm : ALGORITHMS) {

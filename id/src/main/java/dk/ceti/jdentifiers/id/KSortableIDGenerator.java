@@ -70,7 +70,9 @@ public class KSortableIDGenerator implements IDGenerator {
     private static final int GID_COUNTER_INIT_BOUND = 1 << 8; // 256
     private static final long MAX_CLOCK_REGRESSION_MS = 1_000L;
 
-    /** Maximum time to spin-wait for clock advancement before throwing. */
+    /**
+     * Maximum time to spin-wait for clock advancement before throwing.
+     */
     static final long MAX_SPIN_NANOS = 2_000_000_000L; // 2 seconds
 
     private final Clock clock;
@@ -101,8 +103,8 @@ public class KSortableIDGenerator implements IDGenerator {
     private int gidCounter;
 
     private KSortableIDGenerator(Clock clock, int nodeBits, int nodeId,
-                                  long lidEpochMs, long maxSpinNanos,
-                                  LidOverflowPolicy lidOverflowPolicy) {
+                                 long lidEpochMs, long maxSpinNanos,
+                                 LidOverflowPolicy lidOverflowPolicy) {
         this.clock = clock;
         this.nodeBits = nodeBits;
         this.counterBits = ID_PAYLOAD_BITS - nodeBits;
@@ -175,7 +177,7 @@ public class KSortableIDGenerator implements IDGenerator {
                         Thread.onSpinWait();
                         if (System.nanoTime() - deadline >= 0) {
                             throw new IllegalStateException(
-                                "Clock did not advance within timeout");
+                                    "Clock did not advance within timeout");
                         }
                     }
                     timestamp = now - DEFAULT_EPOCH_MS;
@@ -192,7 +194,7 @@ public class KSortableIDGenerator implements IDGenerator {
                         Thread.onSpinWait();
                         if (System.nanoTime() - deadline >= 0) {
                             throw new IllegalStateException(
-                                "Clock did not advance within timeout");
+                                    "Clock did not advance within timeout");
                         }
                     }
                     timestamp = now - DEFAULT_EPOCH_MS;
@@ -200,15 +202,15 @@ public class KSortableIDGenerator implements IDGenerator {
                     idCounter = 0;
                 } else {
                     throw new IllegalStateException(
-                        "Clock moved backwards by " + drift + "ms (exceeds 1s tolerance)");
+                            "Clock moved backwards by " + drift + "ms (exceeds 1s tolerance)");
                 }
             }
 
             lastIdTimestamp = timestamp;
 
             long bits = (timestamp << ID_PAYLOAD_BITS)
-                      | ((long) nodeId << counterBits)
-                      | idCounter;
+                    | ((long) nodeId << counterBits)
+                    | idCounter;
             return ID.fromLong(bits);
         }
     }
@@ -243,7 +245,7 @@ public class KSortableIDGenerator implements IDGenerator {
                         Thread.onSpinWait();
                         if (System.nanoTime() - deadline >= 0) {
                             throw new IllegalStateException(
-                                "Clock did not advance within timeout");
+                                    "Clock did not advance within timeout");
                         }
                     }
                     checkGidTimestamp(now);
@@ -259,14 +261,14 @@ public class KSortableIDGenerator implements IDGenerator {
                         Thread.onSpinWait();
                         if (System.nanoTime() - deadline >= 0) {
                             throw new IllegalStateException(
-                                "Clock did not advance within timeout");
+                                    "Clock did not advance within timeout");
                         }
                     }
                     checkGidTimestamp(now);
                     gidCounter = random.nextInt(GID_COUNTER_INIT_BOUND);
                 } else {
                     throw new IllegalStateException(
-                        "Clock moved backwards by " + drift + "ms (exceeds 1s tolerance)");
+                            "Clock moved backwards by " + drift + "ms (exceeds 1s tolerance)");
                 }
             }
 
@@ -316,8 +318,8 @@ public class KSortableIDGenerator implements IDGenerator {
                 if (lidCounter >= LID_COUNTER_MAX) {
                     if (lidOverflowPolicy == LidOverflowPolicy.THROW) {
                         throw new IllegalStateException(
-                            "LID counter overflow: more than 4096 IDs generated in the current hour. " +
-                            "Consider LidOverflowPolicy.WRAP or RandomIDGenerator.");
+                                "LID counter overflow: more than 4096 IDs generated in the current hour. " +
+                                        "Consider LidOverflowPolicy.WRAP or RandomIDGenerator.");
                     }
                     lidCounter = 0;
                 } else {
@@ -393,7 +395,8 @@ public class KSortableIDGenerator implements IDGenerator {
         private long maxSpinNanos = MAX_SPIN_NANOS;
         private LidOverflowPolicy lidOverflowPolicy = LidOverflowPolicy.WRAP;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         /**
          * Clock source for timestamp generation. Defaults to {@link Clock#systemUTC()}.
@@ -504,8 +507,8 @@ public class KSortableIDGenerator implements IDGenerator {
         public KSortableIDGenerator build() {
             if (nodeBits < 0 || nodeBits >= ID_PAYLOAD_BITS) {
                 throw new IllegalArgumentException(
-                    "nodeBits must be in [0, " + (ID_PAYLOAD_BITS - 1)
-                    + "] (at least 1 counter bit required), got " + nodeBits);
+                        "nodeBits must be in [0, " + (ID_PAYLOAD_BITS - 1)
+                                + "] (at least 1 counter bit required), got " + nodeBits);
             }
 
             if (nodeId != null && nodeIdFactory != null) {
@@ -516,7 +519,7 @@ public class KSortableIDGenerator implements IDGenerator {
             long resolvedLidEpochMs = (lidEpoch != null) ? lidEpoch.toEpochMilli() : DEFAULT_EPOCH_MS;
 
             return new KSortableIDGenerator(clock, nodeBits, resolvedNodeId,
-                resolvedLidEpochMs, maxSpinNanos, lidOverflowPolicy);
+                    resolvedLidEpochMs, maxSpinNanos, lidOverflowPolicy);
         }
 
         private int getResolvedNodeId() {
@@ -530,14 +533,14 @@ public class KSortableIDGenerator implements IDGenerator {
             if (nodeBits == 0) {
                 if (resolvedNodeId != 0) {
                     throw new IllegalArgumentException(
-                        "nodeId must be 0 when nodeBits is 0, got " + resolvedNodeId);
+                            "nodeId must be 0 when nodeBits is 0, got " + resolvedNodeId);
                 }
             } else {
                 int maxNodeId = (1 << nodeBits) - 1;
                 if (resolvedNodeId < 0 || resolvedNodeId > maxNodeId) {
                     throw new IllegalArgumentException(
-                        "nodeId must be in [0, " + maxNodeId + "] for "
-                        + nodeBits + " node bits, got " + resolvedNodeId);
+                            "nodeId must be in [0, " + maxNodeId + "] for "
+                                    + nodeBits + " node bits, got " + resolvedNodeId);
                 }
             }
             return resolvedNodeId;

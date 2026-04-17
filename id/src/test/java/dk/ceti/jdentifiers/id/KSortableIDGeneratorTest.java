@@ -37,8 +37,8 @@ class KSortableIDGeneratorTest {
         long offsetMs = 5_000L;
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + offsetMs);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         ID<A> id = gen.identifier();
         long extractedTimestamp = id.asLong() >>> 22;
@@ -49,14 +49,14 @@ class KSortableIDGeneratorTest {
     void id_monotonic_within_same_ms() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         ID<A> prev = gen.identifier();
         for (int i = 0; i < 100; i++) {
             ID<A> next = gen.identifier();
             assertTrue(prev.compareTo(next) < 0,
-                "ID " + prev + " should be less than " + next);
+                    "ID " + prev + " should be less than " + next);
             prev = next;
         }
     }
@@ -65,8 +65,8 @@ class KSortableIDGeneratorTest {
     void id_monotonic_across_ms_ticks() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         List<ID<A>> ids = new ArrayList<>();
         for (int tick = 0; tick < 5; tick++) {
@@ -78,7 +78,7 @@ class KSortableIDGeneratorTest {
 
         for (int i = 1; i < ids.size(); i++) {
             assertTrue(ids.get(i - 1).compareTo(ids.get(i)) < 0,
-                "ID at index " + (i - 1) + " should be less than ID at index " + i);
+                    "ID at index " + (i - 1) + " should be less than ID at index " + i);
         }
     }
 
@@ -86,8 +86,8 @@ class KSortableIDGeneratorTest {
     void id_counter_resets_on_new_ms() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>identifier(); // counter = 0
         gen.<A>identifier(); // counter = 1
@@ -102,10 +102,10 @@ class KSortableIDGeneratorTest {
     void id_counter_overflow_waits_for_next_ms() throws Exception {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .nodeBits(12) // counterBits=10, counterMax=1023
-            .nodeId(0)
-            .build();
+                .clock(clock)
+                .nodeBits(12) // counterBits=10, counterMax=1023
+                .nodeId(0)
+                .build();
 
         for (int i = 0; i < 1024; i++) {
             gen.<A>identifier();
@@ -129,10 +129,10 @@ class KSortableIDGeneratorTest {
         long offsetMs = 1000L;
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + offsetMs);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .nodeBits(10)
-            .nodeId(42)
-            .build();
+                .clock(clock)
+                .nodeBits(10)
+                .nodeId(42)
+                .build();
 
         ID<A> id = gen.identifier();
         long bits = id.asLong();
@@ -151,10 +151,10 @@ class KSortableIDGeneratorTest {
         long offsetMs = 2000L;
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + offsetMs);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .nodeBits(5)
-            .nodeId(31) // max for 5 bits
-            .build();
+                .clock(clock)
+                .nodeBits(5)
+                .nodeId(31) // max for 5 bits
+                .build();
 
         ID<A> id = gen.identifier();
         long bits = id.asLong();
@@ -172,8 +172,8 @@ class KSortableIDGeneratorTest {
     void id_clock_regression_small_spins() throws Exception {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>identifier(); // lastIdTimestamp = 1000
 
@@ -192,8 +192,8 @@ class KSortableIDGeneratorTest {
     void id_clock_regression_large_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>identifier(); // lastIdTimestamp = 5000
 
@@ -206,8 +206,8 @@ class KSortableIDGeneratorTest {
     void id_before_epoch_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS - 1);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         assertThrows(IllegalStateException.class, gen::<A>identifier);
     }
@@ -217,8 +217,8 @@ class KSortableIDGeneratorTest {
         // 2^42 ms past epoch overflows the 42-bit timestamp field
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + (1L << 42));
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         assertThrows(IllegalStateException.class, gen::<A>identifier);
     }
@@ -227,8 +227,8 @@ class KSortableIDGeneratorTest {
     void id_clock_regression_exactly_1s_spins() throws Exception {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>identifier(); // lastIdTimestamp = 5000
 
@@ -247,8 +247,8 @@ class KSortableIDGeneratorTest {
     void id_clock_regression_just_over_1s_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>identifier(); // lastIdTimestamp = 5000
 
@@ -288,8 +288,8 @@ class KSortableIDGeneratorTest {
         long now = System.currentTimeMillis();
         TestClock clock = new TestClock(now);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         GID<A> gid = gen.globalIdentifier();
         long msb = gid.asUUID().getMostSignificantBits();
@@ -301,8 +301,8 @@ class KSortableIDGeneratorTest {
     void gid_monotonic_within_same_ms() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         GID<A> prev = gen.globalIdentifier();
         for (int i = 0; i < 100; i++) {
@@ -311,7 +311,7 @@ class KSortableIDGeneratorTest {
             long prevMsb = prev.asUUID().getMostSignificantBits();
             long nextMsb = next.asUUID().getMostSignificantBits();
             assertTrue(Long.compareUnsigned(prevMsb, nextMsb) < 0,
-                "GID MSB should increase monotonically");
+                    "GID MSB should increase monotonically");
             prev = next;
         }
     }
@@ -320,8 +320,8 @@ class KSortableIDGeneratorTest {
     void gid_counter_resets_on_new_ms() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         // Generate enough GIDs to push counter well above 256
         // (initial offset is [0,256), so after warmupCount calls the counter is >= warmupCount)
@@ -332,8 +332,8 @@ class KSortableIDGeneratorTest {
         GID<A> lastBeforeTick = gen.globalIdentifier();
         int counterBeforeTick = (int) (lastBeforeTick.asUUID().getMostSignificantBits() & 0xFFF);
         assertTrue(counterBeforeTick >= warmupCount,
-            "Counter should be >= " + warmupCount + " after " + (warmupCount + 1)
-            + " generations, was " + counterBeforeTick);
+                "Counter should be >= " + warmupCount + " after " + (warmupCount + 1)
+                        + " generations, was " + counterBeforeTick);
 
         // Advance to new ms
         clock.advance(1);
@@ -342,17 +342,17 @@ class KSortableIDGeneratorTest {
 
         // Counter should have reset to a small random offset (< 256)
         assertTrue(afterCounter < 256,
-            "Counter should re-init to small random offset (< 256), was " + afterCounter);
+                "Counter should re-init to small random offset (< 256), was " + afterCounter);
         assertTrue(afterCounter < counterBeforeTick,
-            "Counter after reset (" + afterCounter + ") should be less than before (" + counterBeforeTick + ")");
+                "Counter after reset (" + afterCounter + ") should be less than before (" + counterBeforeTick + ")");
     }
 
     @Test
     void gid_monotonic_across_ms_ticks() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         List<GID<A>> gids = new ArrayList<>();
         for (int tick = 0; tick < 5; tick++) {
@@ -364,7 +364,7 @@ class KSortableIDGeneratorTest {
 
         for (int i = 1; i < gids.size(); i++) {
             assertTrue(gids.get(i - 1).compareTo(gids.get(i)) < 0,
-                "GID at index " + (i - 1) + " should be less than GID at index " + i);
+                    "GID at index " + (i - 1) + " should be less than GID at index " + i);
         }
     }
 
@@ -372,8 +372,8 @@ class KSortableIDGeneratorTest {
     void gid_counter_overflow_waits_for_next_ms() throws Exception {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         // The 12-bit counter allows 4096 values per ms tick.
         // Initial counter is a random offset in [0, 256), so at most 4096 calls
@@ -413,8 +413,8 @@ class KSortableIDGeneratorTest {
     void gid_clock_regression_small_spins() throws Exception {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>globalIdentifier(); // lastGidTimestamp = DEFAULT_EPOCH_MS + 5000
 
@@ -437,8 +437,8 @@ class KSortableIDGeneratorTest {
     void gid_clock_regression_exactly_1s_spins() throws Exception {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>globalIdentifier();
 
@@ -457,8 +457,8 @@ class KSortableIDGeneratorTest {
     void gid_clock_regression_just_over_1s_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>globalIdentifier();
 
@@ -471,8 +471,8 @@ class KSortableIDGeneratorTest {
     void gid_clock_regression_large_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>globalIdentifier();
 
@@ -486,8 +486,8 @@ class KSortableIDGeneratorTest {
         // 2^48 ms overflows the 48-bit timestamp field
         TestClock clock = new TestClock(1L << 48);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         assertThrows(IllegalStateException.class, gen::<A>globalIdentifier);
     }
@@ -505,8 +505,8 @@ class KSortableIDGeneratorTest {
         // 1 hour after epoch
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         LID<A> lid = gen.localIdentifier();
         int bits = lid.toInteger();
@@ -518,14 +518,14 @@ class KSortableIDGeneratorTest {
     void lid_monotonic_within_same_hour() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         LID<A> prev = gen.localIdentifier();
         for (int i = 0; i < 100; i++) {
             LID<A> next = gen.localIdentifier();
             assertTrue(prev.compareTo(next) < 0,
-                "LID " + prev + " should be less than " + next);
+                    "LID " + prev + " should be less than " + next);
             prev = next;
         }
     }
@@ -534,8 +534,8 @@ class KSortableIDGeneratorTest {
     void lid_counter_resets_on_new_hour() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>localIdentifier(); // counter = 0
         gen.<A>localIdentifier(); // counter = 1
@@ -550,9 +550,9 @@ class KSortableIDGeneratorTest {
     void lid_counter_overflow_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.THROW)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.THROW)
+                .build();
 
         for (int i = 0; i < 4096; i++) {
             gen.<A>localIdentifier();
@@ -565,9 +565,9 @@ class KSortableIDGeneratorTest {
     void lid_counter_overflow_repeats_in_same_hour() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.THROW)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.THROW)
+                .build();
 
         for (int i = 0; i < 4096; i++) {
             gen.<A>localIdentifier();
@@ -584,9 +584,9 @@ class KSortableIDGeneratorTest {
     void lid_recovers_after_counter_overflow() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.THROW)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.THROW)
+                .build();
 
         for (int i = 0; i < 4096; i++) {
             gen.<A>localIdentifier();
@@ -609,8 +609,8 @@ class KSortableIDGeneratorTest {
     void lid_clock_regression_across_hour_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 2 * HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>localIdentifier(); // hour = 2
 
@@ -623,8 +623,8 @@ class KSortableIDGeneratorTest {
     void lid_before_epoch_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS - HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         assertThrows(IllegalStateException.class, gen::<A>localIdentifier);
     }
@@ -634,8 +634,8 @@ class KSortableIDGeneratorTest {
         // 2^20 hours past epoch overflows the 20-bit hour timestamp field
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + ((1L << 20) * HOUR_MS));
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         assertThrows(IllegalStateException.class, gen::<A>localIdentifier);
     }
@@ -644,9 +644,9 @@ class KSortableIDGeneratorTest {
     void lid_counter_overflow_message_mentions_alternatives() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.THROW)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.THROW)
+                .build();
 
         for (int i = 0; i < 4096; i++) {
             gen.<A>localIdentifier();
@@ -654,9 +654,9 @@ class KSortableIDGeneratorTest {
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, gen::<A>localIdentifier);
         assertTrue(ex.getMessage().contains("LidOverflowPolicy.WRAP"),
-            "Error message should mention WRAP as alternative");
+                "Error message should mention WRAP as alternative");
         assertTrue(ex.getMessage().contains("RandomIDGenerator"),
-            "Error message should mention RandomIDGenerator as alternative");
+                "Error message should mention RandomIDGenerator as alternative");
     }
 
     @Test
@@ -664,8 +664,8 @@ class KSortableIDGeneratorTest {
         // Start 30 minutes into hour 5
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS * 5 + HOUR_MS / 2);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         LID<A> first = gen.localIdentifier(); // hour = 5, counter = 0
 
@@ -681,8 +681,8 @@ class KSortableIDGeneratorTest {
         // Generate at the very end of hour 5 (1ms before hour 6)
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS * 6 - 1);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>localIdentifier(); // hour = 5, counter = 0
 
@@ -699,8 +699,8 @@ class KSortableIDGeneratorTest {
         // Start at the beginning of hour 5
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS * 5);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         gen.<A>localIdentifier(); // hour = 5
 
@@ -716,9 +716,9 @@ class KSortableIDGeneratorTest {
         long customEpochMs = customEpoch.toEpochMilli();
         TestClock clock = new TestClock(customEpochMs + HOUR_MS * 10);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidEpoch(customEpoch)
-            .build();
+                .clock(clock)
+                .lidEpoch(customEpoch)
+                .build();
 
         LID<A> lid = gen.localIdentifier();
         int bits = lid.toInteger();
@@ -730,8 +730,8 @@ class KSortableIDGeneratorTest {
     void lid_monotonic_across_hours() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         List<LID<A>> lids = new ArrayList<>();
         for (int hour = 0; hour < 3; hour++) {
@@ -743,7 +743,7 @@ class KSortableIDGeneratorTest {
 
         for (int i = 1; i < lids.size(); i++) {
             assertTrue(lids.get(i - 1).compareTo(lids.get(i)) < 0,
-                "LID at index " + (i - 1) + " should be less than LID at index " + i);
+                    "LID at index " + (i - 1) + " should be less than LID at index " + i);
         }
     }
 
@@ -761,65 +761,65 @@ class KSortableIDGeneratorTest {
     @Test
     void builder_rejects_negative_node_bits() {
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(-1).build());
+                KSortableIDGenerator.builder().nodeBits(-1).build());
     }
 
     @Test
     void builder_rejects_node_bits_too_large() {
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(23).build());
+                KSortableIDGenerator.builder().nodeBits(23).build());
     }
 
     @Test
     void builder_rejects_node_bits_22_degenerate() {
         // nodeBits=22 would leave 0 counter bits — degenerate, rejected
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(22).build());
+                KSortableIDGenerator.builder().nodeBits(22).build());
     }
 
     @Test
     void builder_rejects_node_id_without_node_bits() {
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeId(1).build());
+                KSortableIDGenerator.builder().nodeId(1).build());
     }
 
     @Test
     void builder_rejects_node_id_out_of_range() {
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(10).nodeId(1024).build());
+                KSortableIDGenerator.builder().nodeBits(10).nodeId(1024).build());
     }
 
     @Test
     void builder_rejects_negative_node_id() {
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(10).nodeId(-1).build());
+                KSortableIDGenerator.builder().nodeBits(10).nodeId(-1).build());
     }
 
     @Test
     void builder_rejects_both_node_id_and_supplier() {
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder()
-                .nodeBits(10)
-                .nodeId(1)
-                .nodeIdFactory(() -> 2)
-                .build());
+                KSortableIDGenerator.builder()
+                        .nodeBits(10)
+                        .nodeId(1)
+                        .nodeIdFactory(() -> 2)
+                        .build());
     }
 
     @Test
     void builder_accepts_node_id_supplier() {
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .nodeBits(10)
-            .nodeIdFactory(() -> 42)
-            .build();
+                .nodeBits(10)
+                .nodeIdFactory(() -> 42)
+                .build();
         assertEquals(42, gen.nodeId());
     }
 
     @Test
     void builder_accepts_max_node_id() {
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .nodeBits(10)
-            .nodeId(1023) // max for 10 bits
-            .build();
+                .nodeBits(10)
+                .nodeId(1023) // max for 10 bits
+                .build();
         assertEquals(1023, gen.nodeId());
     }
 
@@ -828,9 +828,9 @@ class KSortableIDGeneratorTest {
     @Test
     void builder_copy_preserves_configuration() {
         KSortableIDGenerator.Builder original = KSortableIDGenerator.builder()
-            .nodeBits(10)
-            .nodeId(42)
-            .lidEpoch(Instant.parse("2024-01-01T00:00:00Z"));
+                .nodeBits(10)
+                .nodeId(42)
+                .lidEpoch(Instant.parse("2024-01-01T00:00:00Z"));
 
         KSortableIDGenerator gen1 = original.copy().build();
         KSortableIDGenerator gen2 = original.copy().build();
@@ -852,7 +852,7 @@ class KSortableIDGeneratorTest {
         ID<A> id1 = gen1.identifier();
         ID<A> id2 = gen2.identifier();
         assertEquals(id1.asLong(), id2.asLong(),
-            "Independent generators should produce identical values for same timestamp + counter");
+                "Independent generators should produce identical values for same timestamp + counter");
     }
 
     // ---- Thread safety test ----
@@ -897,7 +897,7 @@ class KSortableIDGeneratorTest {
             List<Long> ids = perThreadIds.get(t);
             for (int i = 1; i < ids.size(); i++) {
                 assertTrue(Long.compareUnsigned(ids.get(i - 1), ids.get(i)) < 0,
-                    "Thread " + t + ": ID at index " + (i - 1) + " should be less than ID at index " + i);
+                        "Thread " + t + ": ID at index " + (i - 1) + " should be less than ID at index " + i);
             }
         }
     }
@@ -942,7 +942,7 @@ class KSortableIDGeneratorTest {
             List<GID<A>> gids = perThreadIds.get(t);
             for (int i = 1; i < gids.size(); i++) {
                 assertTrue(gids.get(i - 1).compareTo(gids.get(i)) < 0,
-                    "Thread " + t + ": GID at index " + (i - 1) + " should be less than GID at index " + i);
+                        "Thread " + t + ": GID at index " + (i - 1) + " should be less than GID at index " + i);
             }
         }
     }
@@ -987,7 +987,7 @@ class KSortableIDGeneratorTest {
             List<LID<A>> lids = perThreadIds.get(t);
             for (int i = 1; i < lids.size(); i++) {
                 assertTrue(lids.get(i - 1).compareTo(lids.get(i)) < 0,
-                    "Thread " + t + ": LID at index " + (i - 1) + " should be less than LID at index " + i);
+                        "Thread " + t + ": LID at index " + (i - 1) + " should be less than LID at index " + i);
             }
         }
     }
@@ -998,11 +998,11 @@ class KSortableIDGeneratorTest {
     void id_spin_wait_timeout_on_counter_overflow() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .nodeBits(12) // counterBits=10, counterMax=1023
-            .nodeId(0)
-            .maxSpinNanos(50_000_000L) // 50ms
-            .build();
+                .clock(clock)
+                .nodeBits(12) // counterBits=10, counterMax=1023
+                .nodeId(0)
+                .maxSpinNanos(50_000_000L) // 50ms
+                .build();
 
         for (int i = 0; i < 1024; i++) {
             gen.<A>identifier();
@@ -1017,9 +1017,9 @@ class KSortableIDGeneratorTest {
     void gid_spin_wait_timeout_on_counter_overflow() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .maxSpinNanos(50_000_000L) // 50ms
-            .build();
+                .clock(clock)
+                .maxSpinNanos(50_000_000L) // 50ms
+                .build();
 
         // GID counter starts at random offset [0,256), max value 4095.
         // Generate until overflow — with frozen clock the spin-wait will timeout.
@@ -1042,9 +1042,9 @@ class KSortableIDGeneratorTest {
     void id_spin_wait_timeout_on_clock_regression() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .maxSpinNanos(50_000_000L) // 50ms
-            .build();
+                .clock(clock)
+                .maxSpinNanos(50_000_000L) // 50ms
+                .build();
 
         gen.<A>identifier();
 
@@ -1058,9 +1058,9 @@ class KSortableIDGeneratorTest {
     void gid_spin_wait_timeout_on_clock_regression() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 5000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .maxSpinNanos(50_000_000L) // 50ms
-            .build();
+                .clock(clock)
+                .maxSpinNanos(50_000_000L) // 50ms
+                .build();
 
         gen.<A>globalIdentifier();
 
@@ -1078,11 +1078,11 @@ class KSortableIDGeneratorTest {
         long maxTimestamp = (1L << KSortableIDGenerator.ID_TIMESTAMP_BITS) - 1;
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + maxTimestamp);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .nodeBits(12) // counterBits=10, counterMax=1023
-            .nodeId(0)
-            .maxSpinNanos(2_000_000_000L)
-            .build();
+                .clock(clock)
+                .nodeBits(12) // counterBits=10, counterMax=1023
+                .nodeId(0)
+                .maxSpinNanos(2_000_000_000L)
+                .build();
 
         // Exhaust 10-bit counter
         for (int i = 0; i < 1024; i++) {
@@ -1113,9 +1113,9 @@ class KSortableIDGeneratorTest {
         long maxTimestamp = (1L << KSortableIDGenerator.GID_TIMESTAMP_BITS) - 1;
         TestClock clock = new TestClock(maxTimestamp);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .maxSpinNanos(2_000_000_000L)
-            .build();
+                .clock(clock)
+                .maxSpinNanos(2_000_000_000L)
+                .build();
 
         // Exhaust 12-bit counter
         IllegalStateException earlyTimeout = null;
@@ -1156,9 +1156,9 @@ class KSortableIDGeneratorTest {
     @Test
     void builder_rejects_non_positive_max_spin_nanos() {
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().maxSpinNanos(0));
+                KSortableIDGenerator.builder().maxSpinNanos(0));
         assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().maxSpinNanos(-1));
+                KSortableIDGenerator.builder().maxSpinNanos(-1));
     }
 
     // ---- Debugger tests ----
@@ -1168,10 +1168,10 @@ class KSortableIDGeneratorTest {
         long offsetMs = 60_000L; // 1 minute after epoch
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + offsetMs);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .nodeBits(10)
-            .nodeId(42)
-            .build();
+                .clock(clock)
+                .nodeBits(10)
+                .nodeId(42)
+                .build();
 
         ID<A> id = gen.identifier();
         String debug = KSortableIDDebugger.debug(id, gen);
@@ -1203,8 +1203,8 @@ class KSortableIDGeneratorTest {
     void debug_lid_output_contains_components() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS * 5);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         LID<A> lid = gen.localIdentifier();
         String debug = KSortableIDDebugger.debug(lid, gen);
@@ -1221,8 +1221,8 @@ class KSortableIDGeneratorTest {
     void id_at_epoch_boundary() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS); // exactly at epoch
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         ID<A> id = gen.identifier();
         long extractedTimestamp = id.asLong() >>> 22;
@@ -1233,8 +1233,8 @@ class KSortableIDGeneratorTest {
     void lid_at_epoch_boundary() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS); // exactly at epoch (hour 0)
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .build();
+                .clock(clock)
+                .build();
 
         LID<A> lid = gen.localIdentifier();
         int bits = lid.toInteger();
@@ -1255,9 +1255,9 @@ class KSortableIDGeneratorTest {
     void lid_wrap_policy_counter_wraps_on_overflow() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+                .build();
 
         for (int i = 0; i < 4096; i++) {
             gen.<A>localIdentifier();
@@ -1274,9 +1274,9 @@ class KSortableIDGeneratorTest {
     void lid_wrap_policy_produces_duplicate_values() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+                .build();
 
         LID<A> first = gen.localIdentifier(); // counter=0
         for (int i = 1; i < 4096; i++) {
@@ -1286,16 +1286,16 @@ class KSortableIDGeneratorTest {
         // After wrap, counter is back at 0 — same value as the first LID
         LID<A> wrapped = gen.localIdentifier();
         assertEquals(first.toInteger(), wrapped.toInteger(),
-            "Wrapped LID should duplicate the first LID in the same hour");
+                "Wrapped LID should duplicate the first LID in the same hour");
     }
 
     @Test
     void lid_wrap_policy_recovers_on_new_hour() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+                .build();
 
         for (int i = 0; i < 4100; i++) {
             gen.<A>localIdentifier(); // wraps past 4096
@@ -1311,9 +1311,9 @@ class KSortableIDGeneratorTest {
     void lid_wrap_policy_monotonicity_lost_after_wrap() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+                .build();
 
         // Generate up to the last value before overflow
         LID<A> lastBeforeWrap = null;
@@ -1323,29 +1323,29 @@ class KSortableIDGeneratorTest {
 
         LID<A> afterWrap = gen.localIdentifier();
         assertTrue(afterWrap.compareTo(lastBeforeWrap) < 0,
-            "After wrap, LID should be less than the last pre-wrap LID");
+                "After wrap, LID should be less than the last pre-wrap LID");
     }
 
     @Test
     void lid_wrap_policy_clock_regression_still_throws() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 2 * HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .clock(clock)
-            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
-            .build();
+                .clock(clock)
+                .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+                .build();
 
         gen.<A>localIdentifier(); // hour = 2
 
         clock.set(DEFAULT_EPOCH_MS + HOUR_MS / 2); // back to hour 0
         assertThrows(IllegalStateException.class, gen::<A>localIdentifier,
-            "Clock regression across hour boundary should still throw with WRAP policy");
+                "Clock regression across hour boundary should still throw with WRAP policy");
     }
 
     @Test
     void lid_wrap_policy_concurrent_generation() throws Exception {
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
-            .build();
+                .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+                .build();
         int threadCount = 4;
         int idsPerThread = 2000; // well past 4096 total — forces wrapping
         List<List<LID<A>>> perThreadIds = new ArrayList<>();
@@ -1378,7 +1378,7 @@ class KSortableIDGeneratorTest {
         // All threads should have produced their expected count — no exceptions
         int totalGenerated = perThreadIds.stream().mapToInt(List::size).sum();
         assertEquals(threadCount * idsPerThread, totalGenerated,
-            "All threads should complete without throwing");
+                "All threads should complete without throwing");
 
         // Every LID should have a valid 20-bit hour and 12-bit counter
         for (List<LID<A>> lids : perThreadIds) {
@@ -1398,15 +1398,15 @@ class KSortableIDGeneratorTest {
     @Test
     void lid_throw_policy_opt_in() {
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .lidOverflowPolicy(LidOverflowPolicy.THROW)
-            .build();
+                .lidOverflowPolicy(LidOverflowPolicy.THROW)
+                .build();
         assertEquals(LidOverflowPolicy.THROW, gen.lidOverflowPolicy());
     }
 
     @Test
     void lid_policy_builder_copy() {
         KSortableIDGenerator.Builder original = KSortableIDGenerator.builder()
-            .lidOverflowPolicy(LidOverflowPolicy.THROW);
+                .lidOverflowPolicy(LidOverflowPolicy.THROW);
         KSortableIDGenerator gen = original.copy().build();
         assertEquals(LidOverflowPolicy.THROW, gen.lidOverflowPolicy());
     }
@@ -1418,7 +1418,7 @@ class KSortableIDGeneratorTest {
         private volatile CountDownLatch readLatch;
         private volatile int readLatchAfter;
         private final java.util.concurrent.atomic.AtomicInteger readCount =
-            new java.util.concurrent.atomic.AtomicInteger();
+                new java.util.concurrent.atomic.AtomicInteger();
 
         TestClock(long initialMillis) {
             this.millis = new AtomicLong(initialMillis);
@@ -1472,5 +1472,6 @@ class KSortableIDGeneratorTest {
         }
     }
 
-    private interface A extends IDAble {}
+    private interface A extends IDAble {
+    }
 }

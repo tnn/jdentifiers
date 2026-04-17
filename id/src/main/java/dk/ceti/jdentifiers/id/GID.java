@@ -35,11 +35,11 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
      * and {@link LID#fromString}. Note: internally calls {@code toString()} on the
      * input because {@link UUID#fromString} requires a {@link String}.
      *
-     * @param <R> the entity type
+     * @param <R>    the entity type
      * @param gidStr UUID string representation
      * @return the parsed GID
      * @throws IllegalArgumentException if the string is not a valid UUID
-     * @throws NullPointerException if gidStr is null
+     * @throws NullPointerException     if gidStr is null
      */
     public static <R extends IDAble> GID<R> fromString(CharSequence gidStr) {
         Objects.requireNonNull(gidStr, "gidStr must not be null");
@@ -49,7 +49,7 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
     /**
      * Wraps the given UUID.
      *
-     * @param <R> the entity type
+     * @param <R>  the entity type
      * @param uuid the UUID value
      * @return a new GID
      */
@@ -60,7 +60,7 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
     /**
      * Converts UUIDs to an unmodifiable list of GIDs.
      *
-     * @param <T> the entity type
+     * @param <T>   the entity type
      * @param uuids the UUID values
      * @return unmodifiable list
      */
@@ -84,7 +84,7 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
      * Re-types a GID. Safe because the phantom type is erased at runtime.
      *
      * @param <I> the target entity type
-     * @param id the GID to re-type
+     * @param id  the GID to re-type
      * @return the same instance, re-typed
      */
     @SuppressWarnings("unchecked")

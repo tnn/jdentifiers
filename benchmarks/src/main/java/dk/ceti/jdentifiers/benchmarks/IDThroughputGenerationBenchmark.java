@@ -1,6 +1,12 @@
 package dk.ceti.jdentifiers.benchmarks;
 
-import dk.ceti.jdentifiers.id.*;
+import dk.ceti.jdentifiers.id.GID;
+import dk.ceti.jdentifiers.id.ID;
+import dk.ceti.jdentifiers.id.IDAble;
+import dk.ceti.jdentifiers.id.IDGenerator;
+import dk.ceti.jdentifiers.id.KSortableIDGenerator;
+import dk.ceti.jdentifiers.id.LID;
+import dk.ceti.jdentifiers.id.RandomIDGenerator;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -37,9 +43,9 @@ public class IDThroughputGenerationBenchmark {
 
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()
-            .include(".*" + IDThroughputGenerationBenchmark.class.getName() + ".*")
-            .build())
-            .run();
+                .include(".*" + IDThroughputGenerationBenchmark.class.getName() + ".*")
+                .build())
+                .run();
     }
 
     @Benchmark

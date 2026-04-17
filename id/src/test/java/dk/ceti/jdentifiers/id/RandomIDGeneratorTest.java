@@ -18,7 +18,7 @@ class RandomIDGeneratorTest {
             GID<TestEntity> gid = generator.globalIdentifier();
             UUID uuid = gid.asUUID();
             assertEquals(4, uuid.version(),
-                "UUID version must be 4, got " + uuid.version() + " for " + uuid);
+                    "UUID version must be 4, got " + uuid.version() + " for " + uuid);
         }
     }
 
@@ -28,7 +28,7 @@ class RandomIDGeneratorTest {
             GID<TestEntity> gid = generator.globalIdentifier();
             UUID uuid = gid.asUUID();
             assertEquals(2, uuid.variant(),
-                "UUID variant must be 2 (RFC 4122), got " + uuid.variant() + " for " + uuid);
+                    "UUID variant must be 2 (RFC 4122), got " + uuid.variant() + " for " + uuid);
         }
     }
 
@@ -42,11 +42,11 @@ class RandomIDGeneratorTest {
 
             // Version nibble (bits 48-51 of MSB) must be 0100
             assertEquals(0x4L, (msb >>> 12) & 0xF,
-                "Version nibble mismatch for " + uuid);
+                    "Version nibble mismatch for " + uuid);
 
             // Variant bits (bits 62-63 of LSB) must be 10
             assertEquals(0b10, (lsb >>> 62) & 0b11,
-                "Variant bits mismatch for " + uuid);
+                    "Variant bits mismatch for " + uuid);
         }
     }
 
@@ -70,5 +70,6 @@ class RandomIDGeneratorTest {
         assertEquals(1_000, seen.size());
     }
 
-    interface TestEntity extends IDAble {}
+    interface TestEntity extends IDAble {
+    }
 }
