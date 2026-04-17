@@ -1,5 +1,11 @@
 package dk.ceti.jdentifiers.benchmarks;
 
+import dk.ceti.jdentifiers.id.GID;
+import dk.ceti.jdentifiers.id.ID;
+import dk.ceti.jdentifiers.id.IDAble;
+import dk.ceti.jdentifiers.id.IDGenerator;
+import dk.ceti.jdentifiers.id.KSortableIDGenerator;
+import dk.ceti.jdentifiers.id.LID;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -14,12 +20,6 @@ import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import dk.ceti.jdentifiers.id.GID;
-import dk.ceti.jdentifiers.id.ID;
-import dk.ceti.jdentifiers.id.IDAble;
-import dk.ceti.jdentifiers.id.IDGenerator;
-import dk.ceti.jdentifiers.id.LID;
-import dk.ceti.jdentifiers.id.KSortableIDGenerator;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -52,9 +52,9 @@ public class IDLatencyGenerationBenchmark {
 
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()
-            .include(".*" + IDLatencyGenerationBenchmark.class.getName() + ".*")
-            .build())
-            .run();
+                .include(".*" + IDLatencyGenerationBenchmark.class.getName() + ".*")
+                .build())
+                .run();
     }
 
     /**
@@ -99,16 +99,24 @@ public class IDLatencyGenerationBenchmark {
         }
     }
 
-    /** Pacer for 64-bit and 128-bit IDs: warmup 1,000 ops/s, measurement 1,000 ops/s. */
+    /**
+     * Pacer for 64-bit and 128-bit IDs: warmup 1,000 ops/s, measurement 1,000 ops/s.
+     */
     @State(Scope.Thread)
     public static class IdPacer extends Pacer {
-        public IdPacer() { super(1_000_000L, 1_000_000L); }
+        public IdPacer() {
+            super(1_000_000L, 1_000_000L);
+        }
     }
 
-    /** Pacer for 32-bit LIDs: warmup 200 ops/s, measurement 50 ops/s. */
+    /**
+     * Pacer for 32-bit LIDs: warmup 200 ops/s, measurement 50 ops/s.
+     */
     @State(Scope.Thread)
     public static class LidPacer extends Pacer {
-        public LidPacer() { super(5_000_000L, 20_000_000L); }
+        public LidPacer() {
+            super(5_000_000L, 20_000_000L);
+        }
     }
 
     @Benchmark

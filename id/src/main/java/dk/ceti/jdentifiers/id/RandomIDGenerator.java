@@ -15,7 +15,8 @@ public class RandomIDGenerator implements IDGenerator {
     /**
      * Creates a new random ID generator.
      */
-    public RandomIDGenerator() {}
+    public RandomIDGenerator() {
+    }
 
 
     @Override

@@ -1,5 +1,9 @@
 package dk.ceti.jdentifiers.benchmarks;
 
+import dk.ceti.jdentifiers.id.GID;
+import dk.ceti.jdentifiers.id.ID;
+import dk.ceti.jdentifiers.id.IDAble;
+import dk.ceti.jdentifiers.id.LID;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -11,10 +15,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import dk.ceti.jdentifiers.id.GID;
-import dk.ceti.jdentifiers.id.ID;
-import dk.ceti.jdentifiers.id.IDAble;
-import dk.ceti.jdentifiers.id.LID;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

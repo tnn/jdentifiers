@@ -1,6 +1,7 @@
 # Jdentifiers
 
-Type-safe identifier library for Java. Phantom-typed wrappers around numeric values (`long`, `int`, `UUID`) that prevent mixing identifiers for different domain entities at compile time.
+Type-safe identifier library for Java. Phantom-typed wrappers around numeric values (`long`, `int`, `UUID`) that prevent
+mixing identifiers for different domain entities at compile time.
 
 ## Modules
 
@@ -30,9 +31,14 @@ mvn -pl benchmarks exec:exec -Dbenchmark=IDLatencyGenerationBenchmark
 
 ## Key Design Decisions
 
-- **Big-endian encoding** — All string representations (hex, Base64) use most-significant-byte-first order. Required for k-sortable/time-sorted identifiers where timestamp bits occupy MSB positions. Hex lexicographic ordering matches unsigned numeric ordering.
-- **Unsigned comparison** — `ID`, `LID`, and `GID` all use unsigned comparison (`Long.compareUnsigned`, `Integer.compareUnsigned`). `GID.compareTo` deliberately diverges from `UUID.compareTo` on JDK <20 which uses signed comparison.
-- **`Comparable<XID<?>>`** — Wildcard type parameter allows `Collections.sort(List<GID<?>>)` to compile. Binary compatible with `Comparable<XID<T>>` due to erasure.
+- **Big-endian encoding** — All string representations (hex, Base64) use most-significant-byte-first order. Required for
+  k-sortable/time-sorted identifiers where timestamp bits occupy MSB positions. Hex lexicographic ordering matches
+  unsigned numeric ordering.
+- **Unsigned comparison** — `ID`, `LID`, and `GID` all use unsigned comparison (`Long.compareUnsigned`,
+  `Integer.compareUnsigned`). `GID.compareTo` deliberately diverges from `UUID.compareTo` on JDK <20 which uses signed
+  comparison.
+- **`Comparable<XID<?>>`** — Wildcard type parameter allows `Collections.sort(List<GID<?>>)` to compile. Binary
+  compatible with `Comparable<XID<T>>` due to erasure.
 - **Phantom type parameter** — `T extends IDAble` provides compile-time safety without runtime overhead.
 - **`java.io.Serializable`** — All three ID types implement `Serializable` with pinned `serialVersionUID`.
 
@@ -43,6 +49,7 @@ Requires JDK 17+.
 ## Releasing to Maven Central
 
 ### Prerequisites (one-time setup)
+
 1. Create an account at https://central.sonatype.com
 2. Claim the `dk.ceti` namespace (requires DNS TXT record on `ceti.dk`)
 3. Generate a GPG keypair and publish it to `keys.openpgp.org`
@@ -58,6 +65,7 @@ Requires JDK 17+.
    ```
 
 ### Release steps
+
 ```sh
 # 1. Set release version
 mvn versions:set -DnewVersion=0.2.0

@@ -12,14 +12,14 @@ public class GIDHexSerializer extends StdScalarSerializer<GID<?>> {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public GIDHexSerializer() {
         super((Class) GID.class);
     }
 
     @Override
     public void serialize(GID<?> value, JsonGenerator gen, SerializerProvider serializers)
-        throws IOException {
+            throws IOException {
         gen.writeString(value.toString());
     }
 }

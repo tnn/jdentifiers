@@ -2,8 +2,8 @@ package dk.ceti.jdentifiers.kotlinx.serialization
 
 import dk.ceti.jdentifiers.id.IDAble
 import dk.ceti.jdentifiers.id.LID
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -37,7 +37,7 @@ class LIDSerializerTest {
     @Test
     fun `deserialize upper-case hex`() {
         val lid = json.decodeFromString(LIDSerializer, "\"6A677FC2\"")
-        assertEquals(LID.fromString<IDAble>("6a677fc2"), lid)
+        assertEquals(LID.fromString("6a677fc2"), lid)
     }
 
     @Test

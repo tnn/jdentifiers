@@ -128,7 +128,7 @@ class GIDTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         new ObjectOutputStream(baos).writeObject(original);
         GID<?> deserialized = (GID<?>) new ObjectInputStream(
-            new ByteArrayInputStream(baos.toByteArray())).readObject();
+                new ByteArrayInputStream(baos.toByteArray())).readObject();
         assertEquals(original, deserialized);
     }
 
@@ -137,7 +137,7 @@ class GIDTest {
         // UUID with MSB sign bit set: signed comparison says this is negative (less than 0-prefixed)
         // GID uses unsigned comparison: f... is greater than 0...
         UUID high = UUID.fromString("f0000000-0000-0000-0000-000000000000");
-        UUID low  = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        UUID low = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // GID ordering: high > low (unsigned, correct)
         assertTrue(GID.<User>fromUuid(high).compareTo(GID.fromUuid(low)) > 0);
@@ -162,9 +162,9 @@ class GIDTest {
     @Test
     void collections_sort_unsigned_ordering() {
         final GID<User> zero = GID.fromString("00000000-0000-0000-0000-000000000000");
-        final GID<User> mid  = GID.fromString("7fffffff-ffff-ffff-ffff-ffffffffffff");
+        final GID<User> mid = GID.fromString("7fffffff-ffff-ffff-ffff-ffffffffffff");
         final GID<User> high = GID.fromString("80000000-0000-0000-0000-000000000000");
-        final GID<User> max  = GID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        final GID<User> max = GID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
         List<GID<User>> list = new ArrayList<>(List.of(max, zero, high, mid));
         Collections.sort(list);

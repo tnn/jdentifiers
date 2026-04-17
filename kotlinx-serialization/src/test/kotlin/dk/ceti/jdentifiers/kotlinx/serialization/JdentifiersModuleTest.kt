@@ -10,7 +10,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -79,7 +79,10 @@ class JdentifiersModuleTest {
     @Test
     fun `null json value for non-nullable ID field throws`() {
         assertFailsWith<SerializationException> {
-            json.decodeFromString(Entity.serializer(), """{"id":null,"gid":"550e8400-e29b-41d4-a716-446655440000","lid":"6a677fc2"}""")
+            json.decodeFromString(
+                Entity.serializer(),
+                """{"id":null,"gid":"550e8400-e29b-41d4-a716-446655440000","lid":"6a677fc2"}"""
+            )
         }
     }
 
@@ -117,8 +120,8 @@ class JdentifiersModuleTest {
         val userId: ID<User> = ID.fromString("6a677fc2ee05e1f6")
         val orgId: ID<Organization> = ID.fromString("8a677fc2ee05e1f6")
 
-        val userIdJson = json.encodeToString(IDSerializer, ID.cast<IDAble>(userId))
-        val orgIdJson = json.encodeToString(IDSerializer, ID.cast<IDAble>(orgId))
+        val userIdJson = json.encodeToString(IDSerializer, ID.cast(userId))
+        val orgIdJson = json.encodeToString(IDSerializer, ID.cast(orgId))
 
         val decodedUserId: ID<User> = ID.cast(json.decodeFromString(IDSerializer, userIdJson))
         val decodedOrgId: ID<Organization> = ID.cast(json.decodeFromString(IDSerializer, orgIdJson))
@@ -131,7 +134,7 @@ class JdentifiersModuleTest {
     fun `round-trip GID with typed IDAble subtype`() {
         val userGid: GID<User> = GID.fromUuid(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
 
-        val encoded = json.encodeToString(GIDSerializer, GID.cast<IDAble>(userGid))
+        val encoded = json.encodeToString(GIDSerializer, GID.cast(userGid))
         val decoded: GID<User> = GID.cast(json.decodeFromString(GIDSerializer, encoded))
 
         assertEquals(userGid, decoded)
@@ -141,7 +144,7 @@ class JdentifiersModuleTest {
     fun `round-trip LID with typed IDAble subtype`() {
         val userLid: LID<User> = LID.fromString("6a677fc2")
 
-        val encoded = json.encodeToString(LIDSerializer, LID.cast<IDAble>(userLid))
+        val encoded = json.encodeToString(LIDSerializer, LID.cast(userLid))
         val decoded: LID<User> = LID.cast(json.decodeFromString(LIDSerializer, encoded))
 
         assertEquals(userLid, decoded)

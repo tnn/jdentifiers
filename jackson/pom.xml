@@ -19,7 +19,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- Jackson needs reflective access to the test record (IdHolder) inside this JPMS module -->
-          <argLine>--add-opens dk.ceti.jdentifiers.jackson/dk.ceti.jdentifiers.jackson=com.fasterxml.jackson.databind</argLine>
+          <argLine>--add-opens
+            dk.ceti.jdentifiers.jackson/dk.ceti.jdentifiers.jackson=com.fasterxml.jackson.databind
+          </argLine>
         </configuration>
       </plugin>
     </plugins>

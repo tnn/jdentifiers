@@ -135,16 +135,16 @@ class LIDTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         new ObjectOutputStream(baos).writeObject(original);
         LID<?> deserialized = (LID<?>) new ObjectInputStream(
-            new ByteArrayInputStream(baos.toByteArray())).readObject();
+                new ByteArrayInputStream(baos.toByteArray())).readObject();
         assertEquals(original, deserialized);
     }
 
     @Test
     void collections_sort_unsigned_ordering() {
         final LID<A> zero = LID.fromInteger(0);
-        final LID<A> mid  = LID.fromInteger(Integer.MAX_VALUE);
+        final LID<A> mid = LID.fromInteger(Integer.MAX_VALUE);
         final LID<A> high = LID.fromInteger(Integer.MIN_VALUE);
-        final LID<A> max  = LID.fromInteger(-1);
+        final LID<A> max = LID.fromInteger(-1);
 
         List<LID<A>> list = new ArrayList<>(List.of(max, zero, high, mid));
         Collections.sort(list);

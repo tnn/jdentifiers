@@ -9,7 +9,8 @@ import java.util.UUID;
  */
 public final class KSortableIDDebugger {
 
-    private KSortableIDDebugger() {}
+    private KSortableIDDebugger() {
+    }
 
     /**
      * Analyzes a k-sortable 64-bit ID using the given generator's configuration.
@@ -25,9 +26,9 @@ public final class KSortableIDDebugger {
     /**
      * Analyzes a k-sortable 64-bit ID with explicit parameters.
      *
-     * @param id        the identifier to analyze
-     * @param nodeBits  number of bits allocated to the node ID (0–22)
-     * @param epochMs   custom epoch in Unix milliseconds
+     * @param id       the identifier to analyze
+     * @param nodeBits number of bits allocated to the node ID (0–22)
+     * @param epochMs  custom epoch in Unix milliseconds
      * @return human-readable debug string
      */
     public static String debugId(ID<?> id, int nodeBits, long epochMs) {
@@ -46,13 +47,13 @@ public final class KSortableIDDebugger {
         StringBuilder sb = new StringBuilder();
         sb.append("ID: ").append(id).append('\n');
         sb.append("├── Timestamp: ").append(KSortableIDGenerator.ID_TIMESTAMP_BITS)
-          .append(" bits = ").append(timestamp).append(" ms (").append(instant).append(")\n");
+                .append(" bits = ").append(timestamp).append(" ms (").append(instant).append(")\n");
         if (nodeBits > 0) {
             sb.append("├── Node:      ").append(nodeBits)
-              .append(" bits = ").append(node).append('\n');
+                    .append(" bits = ").append(node).append('\n');
         }
         sb.append("└── Counter:   ").append(counterBits)
-          .append(" bits = ").append(counter);
+                .append(" bits = ").append(counter);
         return sb.toString();
     }
 
@@ -70,8 +71,8 @@ public final class KSortableIDDebugger {
     /**
      * Analyzes a k-sortable 32-bit LID with explicit epoch.
      *
-     * @param lid      the local identifier to analyze
-     * @param epochMs  custom epoch in Unix milliseconds
+     * @param lid     the local identifier to analyze
+     * @param epochMs custom epoch in Unix milliseconds
      * @return human-readable debug string
      */
     public static String debugLid(LID<?> lid, long epochMs) {
@@ -83,12 +84,12 @@ public final class KSortableIDDebugger {
         long unixMs = (hoursSinceEpoch * KSortableIDGenerator.HOUR_MS) + epochMs;
         Instant instant = Instant.ofEpochMilli(unixMs);
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("LID: ").append(lid).append('\n');
         sb.append("├── Timestamp: ").append(KSortableIDGenerator.LID_TIMESTAMP_BITS)
-          .append(" bits = ").append(hoursSinceEpoch).append(" hours (").append(instant).append(")\n");
+                .append(" bits = ").append(hoursSinceEpoch).append(" hours (").append(instant).append(")\n");
         sb.append("└── Counter:   ").append(KSortableIDGenerator.LID_COUNTER_BITS)
-          .append(" bits = ").append(counter);
+                .append(" bits = ").append(counter);
         return sb.toString();
     }
 
@@ -114,7 +115,7 @@ public final class KSortableIDDebugger {
         StringBuilder sb = new StringBuilder();
         sb.append("GID: ").append(gid).append('\n');
         sb.append("├── Timestamp: 48 bits = ").append(unixMs)
-          .append(" ms (").append(instant).append(")\n");
+                .append(" ms (").append(instant).append(")\n");
         sb.append("├── Version:   4 bits  = ").append(version).append('\n');
         sb.append("├── rand_a:    12 bits = ").append(randA).append(" (counter)\n");
         sb.append("├── Variant:   2 bits  = ").append(variant).append('\n');
