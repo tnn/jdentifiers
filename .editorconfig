@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.java]
+indent_style = space
+indent_size = 4
+continuation_indent_size = 4
+max_line_length = 120
+ij_java_call_parameters_right_paren_on_new_line = true
+ij_java_method_parameters_right_paren_on_new_line = true
+ij_java_array_initializer_right_brace_on_new_line = true
+ij_java_imports_layout = *, |, java.**, javax.**, |, $*
+
+[*.kt]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+[*.xml]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
