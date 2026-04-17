@@ -151,6 +151,4 @@ class KSortableIDDebuggerTest {
     private static Clock stubClock() {
         return Clock.fixed(Instant.now(), ZoneOffset.UTC);
     }
-
-    private interface A extends IDAble {}
 }

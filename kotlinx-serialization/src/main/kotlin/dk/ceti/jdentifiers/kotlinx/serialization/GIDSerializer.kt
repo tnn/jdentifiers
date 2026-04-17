@@ -22,7 +22,7 @@ object GIDSerializer : KSerializer<GID<IDAble>> {
     override fun deserialize(decoder: Decoder): GID<IDAble> {
         val text = decoder.decodeString()
         try {
-            return GID.fromString<IDAble>(text)
+            return GID.fromString(text)
         } catch (e: IllegalArgumentException) {
             throw SerializationException("Invalid GID: $text", e)
         }

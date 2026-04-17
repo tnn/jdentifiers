@@ -551,6 +551,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.THROW)
             .build();
 
         for (int i = 0; i < 4096; i++) {
@@ -565,6 +566,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.THROW)
             .build();
 
         for (int i = 0; i < 4096; i++) {
@@ -583,6 +585,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.THROW)
             .build();
 
         for (int i = 0; i < 4096; i++) {
@@ -638,10 +641,11 @@ class KSortableIDGeneratorTest {
     }
 
     @Test
-    void lid_counter_overflow_message_mentions_random_generator() {
+    void lid_counter_overflow_message_mentions_alternatives() {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.THROW)
             .build();
 
         for (int i = 0; i < 4096; i++) {
@@ -649,7 +653,10 @@ class KSortableIDGeneratorTest {
         }
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, gen::<A>localIdentifier);
-        assertTrue(ex.getMessage().contains("RandomIDGenerator"));
+        assertTrue(ex.getMessage().contains("LidOverflowPolicy.WRAP"),
+            "Error message should mention WRAP as alternative");
+        assertTrue(ex.getMessage().contains("RandomIDGenerator"),
+            "Error message should mention RandomIDGenerator as alternative");
     }
 
     @Test
@@ -1240,6 +1247,168 @@ class KSortableIDGeneratorTest {
         GID<A> gid = gen.globalIdentifier();
         // Should be parseable as UUID without throwing
         UUID.fromString(gid.toString());
+    }
+
+    // ---- LidOverflowPolicy tests ----
+
+    @Test
+    void lid_wrap_policy_counter_wraps_on_overflow() {
+        TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
+        KSortableIDGenerator gen = KSortableIDGenerator.builder()
+            .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+            .build();
+
+        for (int i = 0; i < 4096; i++) {
+            gen.<A>localIdentifier();
+        }
+
+        // 4097th call should wrap, not throw
+        LID<A> lid = gen.localIdentifier();
+        assertNotNull(lid);
+        int counter = lid.toInteger() & 0xFFF;
+        assertEquals(0, counter, "Counter should wrap to 0");
+    }
+
+    @Test
+    void lid_wrap_policy_produces_duplicate_values() {
+        TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
+        KSortableIDGenerator gen = KSortableIDGenerator.builder()
+            .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+            .build();
+
+        LID<A> first = gen.localIdentifier(); // counter=0
+        for (int i = 1; i < 4096; i++) {
+            gen.<A>localIdentifier();
+        }
+
+        // After wrap, counter is back at 0 — same value as the first LID
+        LID<A> wrapped = gen.localIdentifier();
+        assertEquals(first.toInteger(), wrapped.toInteger(),
+            "Wrapped LID should duplicate the first LID in the same hour");
+    }
+
+    @Test
+    void lid_wrap_policy_recovers_on_new_hour() {
+        TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
+        KSortableIDGenerator gen = KSortableIDGenerator.builder()
+            .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+            .build();
+
+        for (int i = 0; i < 4100; i++) {
+            gen.<A>localIdentifier(); // wraps past 4096
+        }
+
+        clock.advance(HOUR_MS);
+        LID<A> lid = gen.localIdentifier();
+        int counter = lid.toInteger() & 0xFFF;
+        assertEquals(0, counter, "Counter should reset to 0 in new hour");
+    }
+
+    @Test
+    void lid_wrap_policy_monotonicity_lost_after_wrap() {
+        TestClock clock = new TestClock(DEFAULT_EPOCH_MS + HOUR_MS);
+        KSortableIDGenerator gen = KSortableIDGenerator.builder()
+            .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+            .build();
+
+        // Generate up to the last value before overflow
+        LID<A> lastBeforeWrap = null;
+        for (int i = 0; i < 4096; i++) {
+            lastBeforeWrap = gen.localIdentifier();
+        }
+
+        LID<A> afterWrap = gen.localIdentifier();
+        assertTrue(afterWrap.compareTo(lastBeforeWrap) < 0,
+            "After wrap, LID should be less than the last pre-wrap LID");
+    }
+
+    @Test
+    void lid_wrap_policy_clock_regression_still_throws() {
+        TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 2 * HOUR_MS);
+        KSortableIDGenerator gen = KSortableIDGenerator.builder()
+            .clock(clock)
+            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+            .build();
+
+        gen.<A>localIdentifier(); // hour = 2
+
+        clock.set(DEFAULT_EPOCH_MS + HOUR_MS / 2); // back to hour 0
+        assertThrows(IllegalStateException.class, gen::<A>localIdentifier,
+            "Clock regression across hour boundary should still throw with WRAP policy");
+    }
+
+    @Test
+    void lid_wrap_policy_concurrent_generation() throws Exception {
+        KSortableIDGenerator gen = KSortableIDGenerator.builder()
+            .lidOverflowPolicy(LidOverflowPolicy.WRAP)
+            .build();
+        int threadCount = 4;
+        int idsPerThread = 2000; // well past 4096 total — forces wrapping
+        List<List<LID<A>>> perThreadIds = new ArrayList<>();
+        for (int i = 0; i < threadCount; i++) {
+            perThreadIds.add(new ArrayList<>());
+        }
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch doneLatch = new CountDownLatch(threadCount);
+
+        for (int t = 0; t < threadCount; t++) {
+            final List<LID<A>> threadIds = perThreadIds.get(t);
+            new Thread(() -> {
+                try {
+                    startLatch.await();
+                    for (int i = 0; i < idsPerThread; i++) {
+                        LID<A> lid = gen.localIdentifier();
+                        threadIds.add(lid);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    doneLatch.countDown();
+                }
+            }).start();
+        }
+
+        startLatch.countDown();
+        assertTrue(doneLatch.await(30, TimeUnit.SECONDS));
+
+        // All threads should have produced their expected count — no exceptions
+        int totalGenerated = perThreadIds.stream().mapToInt(List::size).sum();
+        assertEquals(threadCount * idsPerThread, totalGenerated,
+            "All threads should complete without throwing");
+
+        // Every LID should have a valid 20-bit hour and 12-bit counter
+        for (List<LID<A>> lids : perThreadIds) {
+            for (LID<A> lid : lids) {
+                int counter = lid.toInteger() & 0xFFF;
+                assertTrue(counter >= 0 && counter <= 4095);
+            }
+        }
+    }
+
+    @Test
+    void lid_default_policy_is_wrap() {
+        KSortableIDGenerator gen = KSortableIDGenerator.builder().build();
+        assertEquals(LidOverflowPolicy.WRAP, gen.lidOverflowPolicy());
+    }
+
+    @Test
+    void lid_throw_policy_opt_in() {
+        KSortableIDGenerator gen = KSortableIDGenerator.builder()
+            .lidOverflowPolicy(LidOverflowPolicy.THROW)
+            .build();
+        assertEquals(LidOverflowPolicy.THROW, gen.lidOverflowPolicy());
+    }
+
+    @Test
+    void lid_policy_builder_copy() {
+        KSortableIDGenerator.Builder original = KSortableIDGenerator.builder()
+            .lidOverflowPolicy(LidOverflowPolicy.THROW);
+        KSortableIDGenerator gen = original.copy().build();
+        assertEquals(LidOverflowPolicy.THROW, gen.lidOverflowPolicy());
     }
 
     // ---- Test helpers ----

@@ -125,7 +125,6 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
      * The phantom type parameter {@code T} is erased at runtime and is not considered.
      */
     @Override
-    @SuppressWarnings("unchecked")
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;

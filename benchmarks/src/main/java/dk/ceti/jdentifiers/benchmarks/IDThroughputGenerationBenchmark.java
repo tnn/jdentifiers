@@ -1,5 +1,6 @@
 package dk.ceti.jdentifiers.benchmarks;
 
+import dk.ceti.jdentifiers.id.*;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -11,12 +12,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import dk.ceti.jdentifiers.id.GID;
-import dk.ceti.jdentifiers.id.ID;
-import dk.ceti.jdentifiers.id.IDAble;
-import dk.ceti.jdentifiers.id.IDGenerator;
-import dk.ceti.jdentifiers.id.LID;
-import dk.ceti.jdentifiers.id.RandomIDGenerator;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Fork(value = 1)
 public class IDThroughputGenerationBenchmark {
     private static final IDGenerator randomGen = new RandomIDGenerator();
+    private static final IDGenerator ksortGen = new KSortableIDGenerator();
 
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()
@@ -64,5 +60,10 @@ public class IDThroughputGenerationBenchmark {
     @Benchmark
     public UUID random_uuid_jdk() {
         return UUID.randomUUID();
+    }
+
+    @Benchmark
+    public LID<IDAble> k_sort_32_bit() {
+        return ksortGen.localIdentifier();
     }
 }

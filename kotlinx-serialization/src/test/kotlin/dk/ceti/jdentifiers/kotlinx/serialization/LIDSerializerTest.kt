@@ -37,7 +37,7 @@ class LIDSerializerTest {
     @Test
     fun `deserialize upper-case hex`() {
         val lid = json.decodeFromString(LIDSerializer, "\"6A677FC2\"")
-        assertEquals(LID.fromString<IDAble>("6a677fc2"), lid)
+        assertEquals(LID.fromString("6a677fc2"), lid)
     }
 
     @Test

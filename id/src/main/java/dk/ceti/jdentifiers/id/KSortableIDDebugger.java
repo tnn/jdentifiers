@@ -83,7 +83,7 @@ public final class KSortableIDDebugger {
         long unixMs = (hoursSinceEpoch * KSortableIDGenerator.HOUR_MS) + epochMs;
         Instant instant = Instant.ofEpochMilli(unixMs);
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("LID: ").append(lid).append('\n');
         sb.append("├── Timestamp: ").append(KSortableIDGenerator.LID_TIMESTAMP_BITS)
           .append(" bits = ").append(hoursSinceEpoch).append(" hours (").append(instant).append(")\n");

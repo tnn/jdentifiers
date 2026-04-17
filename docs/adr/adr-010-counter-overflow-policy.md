@@ -1,6 +1,6 @@
 # ADR-010: Counter overflow policy — block vs. throw
 
-**Status**: Accepted
+**Status**: Accepted (LID section superseded by [ADR-014](adr-014-lid-overflow-wrap-default.md))
 
 ## Context
 

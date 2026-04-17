@@ -182,7 +182,6 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
      * The phantom type parameter {@code T} is erased at runtime and is not considered.
      */
     @Override
-    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
         if (this == o) {
             return true;

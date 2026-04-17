@@ -37,7 +37,7 @@ class IDSerializerTest {
     @Test
     fun `deserialize upper-case hex`() {
         val id = json.decodeFromString(IDSerializer, "\"6A677FC2EE05E1F6\"")
-        assertEquals(ID.fromString<IDAble>("6a677fc2ee05e1f6"), id)
+        assertEquals(ID.fromString("6a677fc2ee05e1f6"), id)
     }
 
     @Test

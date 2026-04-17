@@ -94,7 +94,6 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
      * The phantom type parameter {@code T} is erased at runtime and is not considered.
      */
     @Override
-    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
         if (this == o) {
             return true;
