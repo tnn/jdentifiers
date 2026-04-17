@@ -96,7 +96,8 @@ class IDTest {
     @Test
     void upper_case_should_have_same_hash_code() {
         assertEquals(ID.fromString("6a677fc2ee05e1f6").hashCode(),
-                ID.fromString("6A677FC2EE05E1F6").hashCode());
+            ID.fromString("6A677FC2EE05E1F6").hashCode()
+        );
     }
 
     @Test
@@ -161,7 +162,7 @@ class IDTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         new ObjectOutputStream(baos).writeObject(original);
         ID<?> deserialized = (ID<?>) new ObjectInputStream(
-                new ByteArrayInputStream(baos.toByteArray())).readObject();
+            new ByteArrayInputStream(baos.toByteArray())).readObject();
         assertEquals(original, deserialized);
     }
 
@@ -217,13 +218,13 @@ class IDTest {
 
     static Stream<Arguments> boundaryValues() {
         return Stream.of(
-                Arguments.of(0L, "0000000000000000"),
-                Arguments.of(1L, "0000000000000001"),
-                Arguments.of(-1L, "ffffffffffffffff"),
-                Arguments.of(Long.MAX_VALUE, "7fffffffffffffff"),
-                Arguments.of(Long.MIN_VALUE, "8000000000000000"),
-                Arguments.of(0x0123456789abcdefL, "0123456789abcdef"),
-                Arguments.of(0xfedcba9876543210L, "fedcba9876543210")
+            Arguments.of(0L, "0000000000000000"),
+            Arguments.of(1L, "0000000000000001"),
+            Arguments.of(-1L, "ffffffffffffffff"),
+            Arguments.of(Long.MAX_VALUE, "7fffffffffffffff"),
+            Arguments.of(Long.MIN_VALUE, "8000000000000000"),
+            Arguments.of(0x0123456789abcdefL, "0123456789abcdef"),
+            Arguments.of(0xfedcba9876543210L, "fedcba9876543210")
         );
     }
 

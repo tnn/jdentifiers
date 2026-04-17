@@ -8,8 +8,10 @@ import java.util.Arrays;
 final class HexCodec {
     // Intentionally a direct array for performance in toString() hot paths.
     // Package-private and must not be mutated.
-    static final byte[] HEX_DIGITS =
-            new byte[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    static final byte[] HEX_DIGITS = new byte[]{
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
     static final int[] HEX_VALUES = new int[128];
 
     static {

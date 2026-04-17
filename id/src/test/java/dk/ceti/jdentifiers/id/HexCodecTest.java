@@ -27,11 +27,11 @@ class HexCodecTest {
 
     @ParameterizedTest
     @CsvSource({
-            "'0', 0", "'1', 1", "'2', 2", "'3', 3",
-            "'4', 4", "'5', 5", "'6', 6", "'7', 7",
-            "'8', 8", "'9', 9",
-            "'a', 10", "'b', 11", "'c', 12", "'d', 13", "'e', 14", "'f', 15",
-            "'A', 10", "'B', 11", "'C', 12", "'D', 13", "'E', 14", "'F', 15"
+        "'0', 0", "'1', 1", "'2', 2", "'3', 3",
+        "'4', 4", "'5', 5", "'6', 6", "'7', 7",
+        "'8', 8", "'9', 9",
+        "'a', 10", "'b', 11", "'c', 12", "'d', 13", "'e', 14", "'f', 15",
+        "'A', 10", "'B', 11", "'C', 12", "'D', 13", "'E', 14", "'F', 15"
     })
     void getHexValue_all_valid_hex_digits(char c, int expected) {
         assertEquals(expected, HexCodec.getHexValue(c));
@@ -39,12 +39,13 @@ class HexCodecTest {
 
     static Stream<Character> invalidAsciiChars() {
         Set<Character> valid = Set.of(
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'a', 'b', 'c', 'd', 'e', 'f',
-                'A', 'B', 'C', 'D', 'E', 'F');
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'a', 'b', 'c', 'd', 'e', 'f',
+            'A', 'B', 'C', 'D', 'E', 'F'
+        );
         return IntStream.range(0, 128)
-                .mapToObj(i -> (char) i)
-                .filter(c -> !valid.contains(c));
+            .mapToObj(i -> (char) i)
+            .filter(c -> !valid.contains(c));
     }
 
     @ParameterizedTest

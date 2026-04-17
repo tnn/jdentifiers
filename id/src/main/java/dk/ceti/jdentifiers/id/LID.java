@@ -7,8 +7,8 @@ import java.util.Objects;
 
 /**
  * Locally scoped 32-bit identifier stored as an unsigned {@code int}.
- * <p>
- * The string representation ({@link #toString()} / {@link #fromString(CharSequence)})
+ *
+ * <p>The string representation ({@link #toString()} / {@link #fromString(CharSequence)})
  * uses 8 lowercase hex characters in big-endian (most-significant-nibble-first) encoding.
  * This ensures that lexicographic string ordering is consistent with unsigned numeric ordering.
  *
@@ -47,7 +47,8 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
         Objects.requireNonNull(idSequence, "idSequence must not be null");
         if (idSequence.length() != LID_STRING_LENGTH) {
             throw new IllegalArgumentException(
-                    "Invalid ID string: expected " + LID_STRING_LENGTH + " hex chars, got " + idSequence.length());
+                "Invalid ID string: expected " + LID_STRING_LENGTH
+                    + " hex chars, got " + idSequence.length());
         }
 
         int bits = HexCodec.getHexValue(idSequence.charAt(0)) << 28;

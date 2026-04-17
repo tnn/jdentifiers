@@ -41,7 +41,7 @@ class JdentifiersHexModuleTest {
     @Test
     void deserializeEmptyStringID() {
         var ex = assertThrows(JsonProcessingException.class, () ->
-                mapper.readValue("\"\"", ID.class)
+            mapper.readValue("\"\"", ID.class)
         );
         assertTrue(ex.getMessage().contains("Invalid ID format"));
     }
@@ -49,7 +49,7 @@ class JdentifiersHexModuleTest {
     @Test
     void deserializeInvalidID() {
         var ex = assertThrows(JsonProcessingException.class, () ->
-                mapper.readValue("\"xyz\"", ID.class)
+            mapper.readValue("\"xyz\"", ID.class)
         );
         assertTrue(ex.getMessage().contains("Invalid ID format"));
     }
@@ -72,7 +72,7 @@ class JdentifiersHexModuleTest {
     @Test
     void deserializeInvalidGID() {
         var ex = assertThrows(JsonProcessingException.class, () ->
-                mapper.readValue("\"not-a-uuid\"", GID.class)
+            mapper.readValue("\"not-a-uuid\"", GID.class)
         );
         assertTrue(ex.getMessage().contains("Invalid GID format"));
     }
@@ -95,7 +95,7 @@ class JdentifiersHexModuleTest {
     @Test
     void deserializeInvalidLID() {
         var ex = assertThrows(JsonProcessingException.class, () ->
-                mapper.readValue("\"zz\"", LID.class)
+            mapper.readValue("\"zz\"", LID.class)
         );
         assertTrue(ex.getMessage().contains("Invalid LID format"));
     }
@@ -122,7 +122,7 @@ class JdentifiersHexModuleTest {
     @Test
     void deserializeEmptyStringGID() {
         var ex = assertThrows(JsonProcessingException.class, () ->
-                mapper.readValue("\"\"", GID.class)
+            mapper.readValue("\"\"", GID.class)
         );
         assertTrue(ex.getMessage().contains("Invalid GID format"));
     }
@@ -130,7 +130,7 @@ class JdentifiersHexModuleTest {
     @Test
     void deserializeEmptyStringLID() {
         var ex = assertThrows(JsonProcessingException.class, () ->
-                mapper.readValue("\"\"", LID.class)
+            mapper.readValue("\"\"", LID.class)
         );
         assertTrue(ex.getMessage().contains("Invalid LID format"));
     }
@@ -143,9 +143,9 @@ class JdentifiersHexModuleTest {
     @Test
     void pojoFieldRoundTrip() throws JsonProcessingException {
         IdHolder holder = new IdHolder(
-                ID.fromString("6a677fc2ee05e1f6"),
-                GID.fromString("420bb7c1-4bb6-4936-9ab1-b6b81f9c0f61"),
-                LID.fromString("6a677fc2")
+            ID.fromString("6a677fc2ee05e1f6"),
+            GID.fromString("420bb7c1-4bb6-4936-9ab1-b6b81f9c0f61"),
+            LID.fromString("6a677fc2")
         );
 
         String json = mapper.writeValueAsString(holder);

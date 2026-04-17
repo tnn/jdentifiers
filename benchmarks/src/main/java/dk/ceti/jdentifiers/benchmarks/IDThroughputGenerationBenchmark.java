@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Throughput benchmark for random ID generation.
- * <p>
- * Measures maximum generation rate without pacing. Useful for detecting
+ *
+ * <p>Measures maximum generation rate without pacing. Useful for detecting
  * regressions in the ID construction and SecureRandom paths.
- * <p>
- * K-sortable generators are excluded — their throughput is bounded by
+ *
+ * <p>K-sortable generators are excluded — their throughput is bounded by
  * clock resolution and counter capacity, not by code efficiency.
  */
 @State(Scope.Benchmark)
@@ -43,9 +43,9 @@ public class IDThroughputGenerationBenchmark {
 
     public static void main(String[] args) throws Exception {
         new Runner(new OptionsBuilder()
-                .include(".*" + IDThroughputGenerationBenchmark.class.getName() + ".*")
-                .build())
-                .run();
+            .include(".*" + IDThroughputGenerationBenchmark.class.getName() + ".*")
+            .build())
+            .run();
     }
 
     @Benchmark

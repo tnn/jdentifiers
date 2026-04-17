@@ -11,8 +11,8 @@ import java.util.UUID;
 
 /**
  * Globally unique, 128-bit identifier.
- * <p>
- * Wraps a {@link UUID} with a phantom type parameter for compile-time type safety.
+ *
+ * <p>Wraps a {@link UUID} with a phantom type parameter for compile-time type safety.
  * Supports any UUID variant (v4, v7, etc.).
  *
  * @param <T> phantom type for compile-time type safety
@@ -30,8 +30,8 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
 
     /**
      * Creates a GID from a UUID string representation.
-     * <p>
-     * Accepts {@link CharSequence} for API consistency with {@link ID#fromString}
+     *
+     * <p>Accepts {@link CharSequence} for API consistency with {@link ID#fromString}
      * and {@link LID#fromString}. Note: internally calls {@code toString()} on the
      * input because {@link UUID#fromString} requires a {@link String}.
      *
@@ -103,16 +103,22 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
 
     /**
      * Compares GIDs using unsigned ordering of the underlying UUID bits.
-     * <p>
-     * Note: this differs from {@link UUID#compareTo} on JDK versions before 20,
+     *
+     * <p>Note: this differs from {@link UUID#compareTo} on JDK versions before 20,
      * where UUID uses signed comparison. This implementation always uses unsigned
      * comparison, matching the corrected behavior in JDK 20+
      * (<a href="https://bugs.openjdk.org/browse/JDK-7025832">JDK-7025832</a>).
      */
     @Override
     public int compareTo(GID<?> o) {
-        int msb = Long.compareUnsigned(uuid.getMostSignificantBits(), o.uuid.getMostSignificantBits());
-        return msb != 0 ? msb : Long.compareUnsigned(uuid.getLeastSignificantBits(), o.uuid.getLeastSignificantBits());
+        int msb = Long.compareUnsigned(
+            uuid.getMostSignificantBits(),
+            o.uuid.getMostSignificantBits()
+        );
+        return msb != 0 ? msb : Long.compareUnsigned(
+            uuid.getLeastSignificantBits(),
+            o.uuid.getLeastSignificantBits()
+        );
     }
 
     @Override

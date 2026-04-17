@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -128,7 +129,7 @@ class GIDTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         new ObjectOutputStream(baos).writeObject(original);
         GID<?> deserialized = (GID<?>) new ObjectInputStream(
-                new ByteArrayInputStream(baos.toByteArray())).readObject();
+            new ByteArrayInputStream(baos.toByteArray())).readObject();
         assertEquals(original, deserialized);
     }
 
@@ -155,7 +156,7 @@ class GIDTest {
 
     @Test
     void fromUUIDs_returns_unmodifiable_list() {
-        final var gids = GID.<User>fromUUIDs(java.util.List.of(UUID_A, UUID_B));
+        final var gids = GID.<User>fromUUIDs(List.of(UUID_A, UUID_B));
         assertThrows(UnsupportedOperationException.class, () -> gids.add(GID.fromUuid(UUID_A)));
     }
 
@@ -186,13 +187,13 @@ class GIDTest {
 
     @Test
     void fromUUIDs_null_element() {
-        final var uuids = java.util.Arrays.asList(UUID_A, null, UUID_B);
+        final var uuids = Arrays.asList(UUID_A, null, UUID_B);
         assertThrows(NullPointerException.class, () -> GID.<User>fromUUIDs(uuids));
     }
 
     @Test
     void fromUUIDs_round_trip() {
-        final var uuids = java.util.List.of(UUID_A, UUID_B);
+        final var uuids = List.of(UUID_A, UUID_B);
         final var gids = GID.<User>fromUUIDs(uuids);
         assertEquals(2, gids.size());
         assertEquals(UUID_A, gids.get(0).asUUID());

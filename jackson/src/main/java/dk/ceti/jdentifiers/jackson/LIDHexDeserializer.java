@@ -23,7 +23,8 @@ public class LIDHexDeserializer extends StdScalarDeserializer<LID<?>> {
             return LID.fromString(text);
         } catch (IllegalArgumentException e) {
             return (LID<?>) ctxt.handleWeirdStringValue(LID.class, text,
-                    "Invalid LID format: %s", e.getMessage());
+                "Invalid LID format: %s", e.getMessage()
+            );
         }
     }
 }
