@@ -24,3 +24,4 @@ dependency-reduced-pom.xml
 # Operation Systems specifics
 *.DS_Store
 .java-version
+CLAUDE.md
