@@ -5,7 +5,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.IntSupplier;
 
 /**
  * K-sortable identifier generator producing time-sorted IDs.
@@ -34,7 +33,7 @@ import java.util.function.IntSupplier;
  * create separate generator instances from a shared builder:
  * <pre>{@code
  * KSortableIDGenerator.Builder base = KSortableIDGenerator.builder()
- *     .nodeBits(10).nodeId(42);
+ *     .nodeId(NodeIdStrategies.of(10, 42));
  * KSortableIDGenerator userGen = base.copy().build();
  * KSortableIDGenerator orgGen  = base.copy().build();
  * }</pre>
@@ -45,6 +44,9 @@ import java.util.function.IntSupplier;
  * @see RandomIDGenerator
  */
 public class KSortableIDGenerator implements IDGenerator {
+
+    private static final System.Logger LOG =
+        System.getLogger(KSortableIDGenerator.class.getName());
 
     /**
      * Custom epoch: 2020-01-01T00:00:00Z in Unix milliseconds.
@@ -119,13 +121,21 @@ public class KSortableIDGenerator implements IDGenerator {
     }
 
     /**
-     * Creates a single-node generator with default epoch (2020-01-01) and no node bits.
+     * Creates a generator with auto-detected node ID and default epoch.
      *
      * <p>Equivalent to {@code KSortableIDGenerator.builder().build()}.
      */
     public KSortableIDGenerator() {
-        this(Clock.systemUTC(), 0, 0, DEFAULT_EPOCH_MS, MAX_SPIN_NANOS, LidOverflowPolicy.WRAP);
+        this(builder().build());
     }
+
+    private KSortableIDGenerator(KSortableIDGenerator src) {
+        this(src.clock, src.nodeBits, src.nodeId,
+            src.lidEpochMs, src.maxSpinNanos, src.lidOverflowPolicy
+        );
+    }
+
+    static final int DEFAULT_NODE_BITS = 10;
 
     /**
      * Returns a new {@link Builder} for configuring a generator.
@@ -152,8 +162,8 @@ public class KSortableIDGenerator implements IDGenerator {
      * Generates a k-sortable 64-bit identifier.
      *
      * <p>Layout: {@code [42-bit ms timestamp | node bits | counter bits]}
-     * where node + counter = 22 bits (configurable split via
-     * {@link Builder#nodeBits(int)}).
+     * where node + counter = 22 bits (configurable via
+     * {@link Builder#nodeId(NodeIdSupplier)}).
      *
      * <p>On counter overflow, blocks until the next millisecond tick.
      * On clock regression ≤1s, spin-waits; &gt;1s throws {@link IllegalStateException}.
@@ -392,9 +402,7 @@ public class KSortableIDGenerator implements IDGenerator {
      */
     public static final class Builder {
         private Clock clock = Clock.systemUTC();
-        private int nodeBits;
-        private Integer nodeId;
-        private IntSupplier nodeIdFactory;
+        private NodeIdSupplier nodeIdSupplier;
         private Instant lidEpoch;
         private long maxSpinNanos = MAX_SPIN_NANOS;
         private LidOverflowPolicy lidOverflowPolicy = LidOverflowPolicy.WRAP;
@@ -414,39 +422,15 @@ public class KSortableIDGenerator implements IDGenerator {
         }
 
         /**
-         * Number of bits allocated to the node ID within the 22-bit ID payload.
-         * The remaining {@code 22 - nodeBits} bits are used for the counter.
-         * Defaults to 0 (single-node, full 22-bit counter).
+         * Sets the node ID. If not called, defaults to
+         * {@link NodeIdStrategies#auto(int)} with 10 node bits.
          *
-         * @param nodeBits the number of node bits (0 to 21)
+         * @param supplier the node ID supplier
          * @return this builder
+         * @see NodeIdStrategies
          */
-        public Builder nodeBits(int nodeBits) {
-            this.nodeBits = nodeBits;
-            return this;
-        }
-
-        /**
-         * Static node ID. Must fit within {@link #nodeBits(int)} bits.
-         *
-         * @param nodeId the node identifier
-         * @return this builder
-         */
-        public Builder nodeId(int nodeId) {
-            this.nodeId = nodeId;
-            return this;
-        }
-
-        /**
-         * Factory for dynamic node ID resolution, called exactly once at {@link #build()} time.
-         * The returned value is captured and used for the lifetime of the generator.
-         * Cannot be combined with {@link #nodeId(int)}.
-         *
-         * @param factory supplier that returns the node ID
-         * @return this builder
-         */
-        public Builder nodeIdFactory(IntSupplier factory) {
-            this.nodeIdFactory = Objects.requireNonNull(factory, "factory");
+        public Builder nodeId(NodeIdSupplier supplier) {
+            this.nodeIdSupplier = Objects.requireNonNull(supplier, "supplier");
             return this;
         }
 
@@ -479,14 +463,16 @@ public class KSortableIDGenerator implements IDGenerator {
          * Useful for creating multiple identically-configured generator instances
          * when per-entity-type counter isolation is desired.
          *
+         * <p>The {@link NodeIdSupplier} reference is shared, not copied.
+         * Built-in suppliers are immutable; stateful custom suppliers should
+         * tolerate multiple {@link NodeIdSupplier#nodeId()} calls.
+         *
          * @return a new builder with the same configuration
          */
         public Builder copy() {
             Builder b = new Builder();
             b.clock = this.clock;
-            b.nodeBits = this.nodeBits;
-            b.nodeId = this.nodeId;
-            b.nodeIdFactory = this.nodeIdFactory;
+            b.nodeIdSupplier = this.nodeIdSupplier;
             b.lidEpoch = this.lidEpoch;
             b.maxSpinNanos = this.maxSpinNanos;
             b.lidOverflowPolicy = this.lidOverflowPolicy;
@@ -511,46 +497,35 @@ public class KSortableIDGenerator implements IDGenerator {
          * @throws IllegalArgumentException if the configuration is invalid
          */
         public KSortableIDGenerator build() {
-            if (nodeBits < 0 || nodeBits >= ID_PAYLOAD_BITS) {
+            var supplier = (nodeIdSupplier != null)
+                ? nodeIdSupplier
+                : NodeIdStrategies.auto(DEFAULT_NODE_BITS);
+
+            var bits = supplier.nodeBits();
+            if (bits < 1 || bits >= ID_PAYLOAD_BITS) {
                 throw new IllegalArgumentException(
-                    "nodeBits must be in [0, " + (ID_PAYLOAD_BITS - 1)
-                        + "] (at least 1 counter bit required), got " + nodeBits);
+                    "nodeBits must be in [1, " + (ID_PAYLOAD_BITS - 1)
+                        + "], got " + bits);
             }
 
-            if (nodeId != null && nodeIdFactory != null) {
-                throw new IllegalArgumentException("Cannot set both nodeId and nodeIdFactory; use one or the other");
+            var id = supplier.nodeId();
+            var max = (1 << bits) - 1;
+            if (id < 0 || id > max) {
+                throw new IllegalArgumentException(
+                    "nodeId must be in [0, " + max + "] for "
+                        + bits + " node bits, got " + id);
             }
 
-            int resolvedNodeId = getResolvedNodeId();
-            long resolvedLidEpochMs = (lidEpoch != null) ? lidEpoch.toEpochMilli() : DEFAULT_EPOCH_MS;
-
-            return new KSortableIDGenerator(clock, nodeBits, resolvedNodeId,
-                resolvedLidEpochMs, maxSpinNanos, lidOverflowPolicy
+            LOG.log(System.Logger.Level.DEBUG,
+                "Node ID resolved: {0}", supplier
             );
-        }
 
-        private int getResolvedNodeId() {
-            int resolvedNodeId;
-            if (nodeIdFactory != null) {
-                resolvedNodeId = nodeIdFactory.getAsInt();
-            } else {
-                resolvedNodeId = Objects.requireNonNullElse(nodeId, 0);
-            }
+            var lidEpochMs = (lidEpoch != null)
+                ? lidEpoch.toEpochMilli() : DEFAULT_EPOCH_MS;
 
-            if (nodeBits == 0) {
-                if (resolvedNodeId != 0) {
-                    throw new IllegalArgumentException(
-                        "nodeId must be 0 when nodeBits is 0, got " + resolvedNodeId);
-                }
-            } else {
-                int maxNodeId = (1 << nodeBits) - 1;
-                if (resolvedNodeId < 0 || resolvedNodeId > maxNodeId) {
-                    throw new IllegalArgumentException(
-                        "nodeId must be in [0, " + maxNodeId + "] for "
-                            + nodeBits + " node bits, got " + resolvedNodeId);
-                }
-            }
-            return resolvedNodeId;
+            return new KSortableIDGenerator(clock, bits, id,
+                lidEpochMs, maxSpinNanos, lidOverflowPolicy
+            );
         }
     }
 }

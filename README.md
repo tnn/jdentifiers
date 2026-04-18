@@ -7,8 +7,8 @@ domain entities at compile time. Two generation strategies — random and k-sort
 common `IDGenerator` interface, so consuming code is unaware of how an identifier was generated.
 
 ```java
-ID<Organization> orgId  = generator.identifier();
-ID<User>         userId = generator.identifier();
+ID<Organization> orgId = generator.identifier();
+ID<User> userId = generator.identifier();
 
 // Compile error: incompatible types
 service.getUser(orgId);
@@ -43,11 +43,20 @@ IDGenerator random = new RandomIDGenerator();
 // K-sortable — default: single-node, full 22-bit counter
 IDGenerator ksortable = new KSortableIDGenerator();
 
-// K-sortable — 10-bit node, 12-bit counter, dynamic node resolution
-IDGenerator ksortable = KSortableIDGenerator.builder()
-    .nodeBits(10)
-    .nodeIdFactory(() -> resolveFromEnvironment())
-    .build();
+// K-sortable — auto-detect node ID (MAC → K8s → hostname → random)
+IDGenerator auto = KSortableIDGenerator.builder()
+        .nodeId(NodeIdStrategies.auto(10))
+        .build();
+
+// K-sortable — static node ID
+IDGenerator fixed = KSortableIDGenerator.builder()
+        .nodeId(NodeIdStrategies.of(10, 42))
+        .build();
+
+// K-sortable — Kubernetes-aware (Deployment suffix decode + fallback)
+IDGenerator k8s = KSortableIDGenerator.builder()
+        .nodeId(NodeIdStrategies.kubernetes(10))
+        .build();
 ```
 
 ## Modules
@@ -80,20 +89,20 @@ mvn -pl benchmarks exec:exec -Dbenchmark=IDStringBenchmark
 
 ## Encoding and serialization
 
-`toString()` and `fromString()` on all three types use lowercase hex as the default text encoding. 
-`fromString()` accepts mixing / uppercased strings. The library has a single strategy on purpose, 
-although it does not prevent other formats such as Base32 or Base64. 
+`toString()` and `fromString()` on all three types use lowercase hex as the default text encoding.
+`fromString()` accepts mixing / uppercased strings. The library has a single strategy on purpose,
+although it does not prevent other formats such as Base32 or Base64.
 
 **Why hex?**
 
-| Encoding | `LID` (32-bit) | `ID` (64-bit) | `GID` (128-bit) | Overhead  | Sort    | Notes                                                                  |
-|----------|----------------|---------------|-----------------|-----------|---------|------------------------------------------------------------------------|
-| Binary   | 4 bytes        | 8 bytes       | 16 bytes        | —         | Yes     | Best for storage, not usable in text protocols                         |
-| Base64   | 6 chars        | 11 chars      | 22 chars        | +38%      | No      | Less legible (`I`/`l`, `0`/`O`), may break double-click selection      |
-| Base32   | 7 chars        | 13 chars      | 26 chars        | +63%      | No      | Less legible depending on alphabet (`I`/`1`)                           |
-| **Hex**  | **8 chars**    | **16 chars**  | **32 chars**    | **+100%** | **Yes** | **Legible, universally parseable, double-click selectable**            |
-| Decimal  | 10 chars       | 20 chars      | 39 chars        | +150%     | Yes     | Longest; 64-bit values exceed JS `Number.MAX_SAFE_INTEGER`             |
-| UUID     | —              | —             | 36 chars        | +125%     | Yes     | Standard format for 128-bit; used by `GID.toString()`                  |
+| Encoding | `LID` (32-bit) | `ID` (64-bit) | `GID` (128-bit) | Overhead  | Sort    | Notes                                                             |
+|----------|----------------|---------------|-----------------|-----------|---------|-------------------------------------------------------------------|
+| Binary   | 4 bytes        | 8 bytes       | 16 bytes        | —         | Yes     | Best for storage, not usable in text protocols                    |
+| Base64   | 6 chars        | 11 chars      | 22 chars        | +38%      | No      | Less legible (`I`/`l`, `0`/`O`), may break double-click selection |
+| Base32   | 7 chars        | 13 chars      | 26 chars        | +63%      | No      | Less legible depending on alphabet (`I`/`1`)                      |
+| **Hex**  | **8 chars**    | **16 chars**  | **32 chars**    | **+100%** | **Yes** | **Legible, universally parseable, double-click selectable**       |
+| Decimal  | 10 chars       | 20 chars      | 39 chars        | +150%     | Yes     | Longest; 64-bit values exceed JS `Number.MAX_SAFE_INTEGER`        |
+| UUID     | —              | —             | 36 chars        | +125%     | Yes     | Standard format for 128-bit; used by `GID.toString()`             |
 
 Hex trades compactness for safety:
 
@@ -204,20 +213,23 @@ For high-throughput or globally-unique 32-bit needs, `RandomIDGenerator.localIde
 
 Full ADRs are maintained in [`docs/adr/`](docs/adr/adr-000-index.md). Summary:
 
-| ADR                                                   | Decision                                                         |
-|-------------------------------------------------------|------------------------------------------------------------------|
-| [001](docs/adr/adr-001-unsigned-comparison.md)        | Unsigned comparison everywhere — reclaims bit 63 for timestamp   |
-| [002](docs/adr/adr-002-phantom-type-parameter.md)     | Phantom type `<T extends IDAble>` for compile-time entity safety |
-| [003](docs/adr/adr-003-comparable-wildcard.md)        | `Comparable<XID<?>>` wildcard for mixed-type collection sorting  |
-| [004](docs/adr/adr-004-opaque-types.md)               | Opaque types, all bit-layout logic in the generator              |
-| [005](docs/adr/adr-005-custom-epoch.md)               | Custom epoch 2020-01-01 — extends rollover to 2159               |
-| [006](docs/adr/adr-006-big-endian-encoding.md)        | Big-endian encoding — hex sort = numeric sort                    |
-| [007](docs/adr/adr-007-serializable-pinned-uid.md)    | `Serializable` with pinned `serialVersionUID`                    |
-| [008](docs/adr/adr-008-securerandom-sha1prng.md)      | SHA1PRNG for non-blocking latency                                |
-| [009](docs/adr/adr-009-clock-regression-policy.md)    | Clock regression — spin ≤1s, throw >1s                           |
-| [010](docs/adr/adr-010-counter-overflow-policy.md)    | Counter overflow — block (ID/GID) vs throw (LID)                 |
-| [011](docs/adr/adr-011-no-common-base-interface.md)   | No common base interface for ID types                            |
-| [012](docs/adr/adr-012-synchronized-thread-safety.md) | Thread safety via `synchronized`                                 |
+| ADR                                                            | Decision                                                         |
+|----------------------------------------------------------------|------------------------------------------------------------------|
+| [001](docs/adr/adr-001-unsigned-comparison.md)                 | Unsigned comparison everywhere — reclaims bit 63 for timestamp   |
+| [002](docs/adr/adr-002-phantom-type-parameter.md)              | Phantom type `<T extends IDAble>` for compile-time entity safety |
+| [003](docs/adr/adr-003-comparable-wildcard.md)                 | `Comparable<XID<?>>` wildcard for mixed-type collection sorting  |
+| [004](docs/adr/adr-004-opaque-types.md)                        | Opaque types, all bit-layout logic in the generator              |
+| [005](docs/adr/adr-005-custom-epoch.md)                        | Custom epoch 2020-01-01 — extends rollover to 2159               |
+| [006](docs/adr/adr-006-big-endian-encoding.md)                 | Big-endian encoding — hex sort = numeric sort                    |
+| [007](docs/adr/adr-007-serializable-pinned-uid.md)             | `Serializable` with pinned `serialVersionUID`                    |
+| [008](docs/adr/adr-008-securerandom-sha1prng.md)               | SHA1PRNG for non-blocking latency                                |
+| [009](docs/adr/adr-009-clock-regression-policy.md)             | Clock regression — spin ≤1s, throw >1s                           |
+| [010](docs/adr/adr-010-counter-overflow-policy.md)             | Counter overflow — block (ID/GID) vs throw (LID)                 |
+| [011](docs/adr/adr-011-no-common-base-interface.md)            | No common base interface for ID types                            |
+| [012](docs/adr/adr-012-synchronized-thread-safety.md)          | Thread safety via `synchronized`                                 |
+| [013](docs/adr/adr-013-shared-counter-across-phantom-types.md) | Shared counter across phantom types                              |
+| [014](docs/adr/adr-014-lid-overflow-wrap-default.md)           | LID counter overflow — wrap by default                           |
+| [015](docs/adr/adr-015-node-id-supplier.md)                    | `NodeIdSupplier` replaces nodeBits/nodeId/nodeIdFactory          |
 
 ---
 
