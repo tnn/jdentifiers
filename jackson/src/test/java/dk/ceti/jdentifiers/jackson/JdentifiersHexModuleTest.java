@@ -39,6 +39,18 @@ class JdentifiersHexModuleTest {
     }
 
     @Test
+    void deserializeUpperCaseID() throws JsonProcessingException {
+        ID<?> id = mapper.readValue("\"6A677FC2EE05E1F6\"", ID.class);
+        assertEquals(ID.fromString("6a677fc2ee05e1f6"), id);
+    }
+
+    @Test
+    void deserializeMixedCaseID() throws JsonProcessingException {
+        ID<?> id = mapper.readValue("\"6a677FC2ee05E1f6\"", ID.class);
+        assertEquals(ID.fromString("6a677fc2ee05e1f6"), id);
+    }
+
+    @Test
     void deserializeEmptyStringID() {
         var ex = assertThrows(JsonProcessingException.class, () ->
             mapper.readValue("\"\"", ID.class)
@@ -70,6 +82,18 @@ class JdentifiersHexModuleTest {
     }
 
     @Test
+    void deserializeUpperCaseGID() throws JsonProcessingException {
+        GID<?> gid = mapper.readValue("\"420BB7C1-4BB6-4936-9AB1-B6B81F9C0F61\"", GID.class);
+        assertEquals(GID.fromString("420bb7c1-4bb6-4936-9ab1-b6b81f9c0f61"), gid);
+    }
+
+    @Test
+    void deserializeMixedCaseGID() throws JsonProcessingException {
+        GID<?> gid = mapper.readValue("\"420bb7C1-4BB6-4936-9ab1-B6B81f9c0f61\"", GID.class);
+        assertEquals(GID.fromString("420bb7c1-4bb6-4936-9ab1-b6b81f9c0f61"), gid);
+    }
+
+    @Test
     void deserializeInvalidGID() {
         var ex = assertThrows(JsonProcessingException.class, () ->
             mapper.readValue("\"not-a-uuid\"", GID.class)
@@ -90,6 +114,18 @@ class JdentifiersHexModuleTest {
     void deserializeValidLID() throws JsonProcessingException {
         LID<?> lid = mapper.readValue("\"6a677fc2\"", LID.class);
         assertEquals(0x6a677fc2, lid.toInteger());
+    }
+
+    @Test
+    void deserializeUpperCaseLID() throws JsonProcessingException {
+        LID<?> lid = mapper.readValue("\"6A677FC2\"", LID.class);
+        assertEquals(LID.fromString("6a677fc2"), lid);
+    }
+
+    @Test
+    void deserializeMixedCaseLID() throws JsonProcessingException {
+        LID<?> lid = mapper.readValue("\"6a677FC2\"", LID.class);
+        assertEquals(LID.fromString("6a677fc2"), lid);
     }
 
     @Test

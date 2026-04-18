@@ -37,6 +37,20 @@ class GIDSerializerTest {
     }
 
     @Test
+    fun `deserialize upper-case UUID`() {
+        val expected: GID<IDAble> = GID.fromUuid(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
+        val gid = json.decodeFromString(GIDSerializer, "\"550E8400-E29B-41D4-A716-446655440000\"")
+        assertEquals(expected, gid)
+    }
+
+    @Test
+    fun `deserialize mixed-case UUID`() {
+        val expected: GID<IDAble> = GID.fromUuid(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
+        val gid = json.decodeFromString(GIDSerializer, "\"550e8400-E29B-41d4-a716-446655440000\"")
+        assertEquals(expected, gid)
+    }
+
+    @Test
     fun `deserialize invalid UUID throws SerializationException`() {
         val ex = assertFailsWith<SerializationException> {
             json.decodeFromString(GIDSerializer, "\"not-a-uuid\"")

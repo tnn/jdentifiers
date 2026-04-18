@@ -41,6 +41,12 @@ class IDSerializerTest {
     }
 
     @Test
+    fun `deserialize mixed-case hex`() {
+        val id = json.decodeFromString(IDSerializer, "\"6a677FC2ee05E1f6\"")
+        assertEquals(ID.fromString("6a677fc2ee05e1f6"), id)
+    }
+
+    @Test
     fun `deserialize invalid hex throws SerializationException`() {
         val ex = assertFailsWith<SerializationException> {
             json.decodeFromString(IDSerializer, "\"xyz\"")
