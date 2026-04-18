@@ -23,8 +23,8 @@ Users who want the previous fail-fast behavior can opt in:
 
 ```java
 KSortableIDGenerator gen = KSortableIDGenerator.builder()
-    .lidOverflowPolicy(LidOverflowPolicy.THROW)
-    .build();
+        .lidOverflowPolicy(LidOverflowPolicy.THROW)
+        .build();
 ```
 
 The `THROW` policy is unchanged — it throws `IllegalStateException` with a message pointing to `WRAP` and

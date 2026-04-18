@@ -46,7 +46,7 @@ contention) can create separate generator instances:
 
 ```java
 KSortableIDGenerator.Builder base = KSortableIDGenerator.builder()
-    .nodeBits(10).nodeId(42);
+    .nodeId(NodeIdStrategies.of(10, 42));
 KSortableIDGenerator userGen = base.copy().build();
 KSortableIDGenerator orgGen  = base.copy().build();
 ```

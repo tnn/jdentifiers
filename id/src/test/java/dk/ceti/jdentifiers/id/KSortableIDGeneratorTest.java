@@ -89,6 +89,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
+            .nodeId(NodeIdStrategies.of(10, 0))
             .build();
 
         gen.<A>identifier(); // counter = 0
@@ -96,7 +97,7 @@ class KSortableIDGeneratorTest {
 
         clock.advance(1);
         ID<A> id = gen.identifier(); // new ms, counter should reset to 0
-        long counter = id.asLong() & 0x3FFFFFL; // bottom 22 bits
+        long counter = id.asLong() & 0xFFFL; // bottom 12 bits (counterBits)
         assertEquals(0, counter);
     }
 
@@ -105,8 +106,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
-            .nodeBits(12) // counterBits=10, counterMax=1023
-            .nodeId(0)
+            .nodeId(NodeIdStrategies.of(12, 0)) // counterBits=10, counterMax=1023
             .build();
 
         for (int i = 0; i < 1024; i++) {
@@ -132,8 +132,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + offsetMs);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
-            .nodeBits(10)
-            .nodeId(42)
+            .nodeId(NodeIdStrategies.of(10, 42))
             .build();
 
         ID<A> id = gen.identifier();
@@ -154,8 +153,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + offsetMs);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
-            .nodeBits(5)
-            .nodeId(31) // max for 5 bits
+            .nodeId(NodeIdStrategies.of(5, 31)) // max for 5 bits
             .build();
 
         ID<A> id = gen.identifier();
@@ -761,84 +759,92 @@ class KSortableIDGeneratorTest {
     // ---- Builder validation tests ----
 
     @Test
-    void builder_default_values() {
+    void builder_default_uses_auto() {
         KSortableIDGenerator gen = KSortableIDGenerator.builder().build();
-        assertEquals(0, gen.nodeBits());
-        assertEquals(22, gen.counterBits());
-        assertEquals(0, gen.nodeId());
+        assertEquals(10, gen.nodeBits());
+        assertEquals(12, gen.counterBits());
+        assertTrue(gen.nodeId() >= 0 && gen.nodeId() < 1024);
         assertEquals(DEFAULT_EPOCH_MS, gen.lidEpochMs());
-    }
-
-    @Test
-    void builder_rejects_negative_node_bits() {
-        assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(-1).build()
-        );
-    }
-
-    @Test
-    void builder_rejects_node_bits_too_large() {
-        assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(23).build()
-        );
-    }
-
-    @Test
-    void builder_rejects_node_bits_22_degenerate() {
-        // nodeBits=22 would leave 0 counter bits — degenerate, rejected
-        assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(22).build()
-        );
-    }
-
-    @Test
-    void builder_rejects_node_id_without_node_bits() {
-        assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeId(1).build()
-        );
-    }
-
-    @Test
-    void builder_rejects_node_id_out_of_range() {
-        assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(10).nodeId(1024).build()
-        );
-    }
-
-    @Test
-    void builder_rejects_negative_node_id() {
-        assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder().nodeBits(10).nodeId(-1).build()
-        );
-    }
-
-    @Test
-    void builder_rejects_both_node_id_and_supplier() {
-        assertThrows(IllegalArgumentException.class, () ->
-            KSortableIDGenerator.builder()
-                .nodeBits(10)
-                .nodeId(1)
-                .nodeIdFactory(() -> 2)
-                .build()
-        );
     }
 
     @Test
     void builder_accepts_node_id_supplier() {
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .nodeBits(10)
-            .nodeIdFactory(() -> 42)
+            .nodeId(NodeIdStrategies.of(10, 42))
             .build();
+        assertEquals(10, gen.nodeBits());
         assertEquals(42, gen.nodeId());
+        assertEquals(12, gen.counterBits());
     }
 
     @Test
     void builder_accepts_max_node_id() {
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
-            .nodeBits(10)
-            .nodeId(1023) // max for 10 bits
+            .nodeId(NodeIdStrategies.of(10, 1023))
             .build();
         assertEquals(1023, gen.nodeId());
+    }
+
+    @Test
+    void builder_rejects_supplier_with_out_of_range_node_id() {
+        // A rogue supplier that returns a value exceeding its declared nodeBits
+        NodeIdSupplier rogue = new NodeIdSupplier() {
+            @Override
+            public int nodeBits() {
+                return 10;
+            }
+
+            @Override
+            public int nodeId() {
+                return 1024; // exceeds 10-bit max of 1023
+            }
+        };
+        assertThrows(IllegalArgumentException.class, () ->
+            KSortableIDGenerator.builder().nodeId(rogue).build()
+        );
+    }
+
+    @Test
+    void builder_rejects_supplier_with_negative_node_id() {
+        NodeIdSupplier rogue = new NodeIdSupplier() {
+            @Override
+            public int nodeBits() {
+                return 10;
+            }
+
+            @Override
+            public int nodeId() {
+                return -1;
+            }
+        };
+        assertThrows(IllegalArgumentException.class, () ->
+            KSortableIDGenerator.builder().nodeId(rogue).build()
+        );
+    }
+
+    @Test
+    void builder_rejects_supplier_with_invalid_node_bits() {
+        NodeIdSupplier rogue = new NodeIdSupplier() {
+            @Override
+            public int nodeBits() {
+                return 22; // would leave 0 counter bits
+            }
+
+            @Override
+            public int nodeId() {
+                return 0;
+            }
+        };
+        assertThrows(IllegalArgumentException.class, () ->
+            KSortableIDGenerator.builder().nodeId(rogue).build()
+        );
+    }
+
+    @Test
+    void builder_rejects_null_supplier() {
+        assertThrows(NullPointerException.class, () ->
+            KSortableIDGenerator.builder().nodeId(null)
+        );
     }
 
     // ---- Builder.copy() tests ----
@@ -846,8 +852,7 @@ class KSortableIDGeneratorTest {
     @Test
     void builder_copy_preserves_configuration() {
         KSortableIDGenerator.Builder original = KSortableIDGenerator.builder()
-            .nodeBits(10)
-            .nodeId(42)
+            .nodeId(NodeIdStrategies.of(10, 42))
             .lidEpoch(Instant.parse("2024-01-01T00:00:00Z"));
 
         KSortableIDGenerator gen1 = original.copy().build();
@@ -1021,8 +1026,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + 1000);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
-            .nodeBits(12) // counterBits=10, counterMax=1023
-            .nodeId(0)
+            .nodeId(NodeIdStrategies.of(12, 0)) // counterBits=10, counterMax=1023
             .maxSpinNanos(50_000_000L) // 50ms
             .build();
 
@@ -1101,8 +1105,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + maxTimestamp);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
-            .nodeBits(12) // counterBits=10, counterMax=1023
-            .nodeId(0)
+            .nodeId(NodeIdStrategies.of(12, 0)) // counterBits=10, counterMax=1023
             .maxSpinNanos(2_000_000_000L)
             .build();
 
@@ -1193,8 +1196,7 @@ class KSortableIDGeneratorTest {
         TestClock clock = new TestClock(DEFAULT_EPOCH_MS + offsetMs);
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(clock)
-            .nodeBits(10)
-            .nodeId(42)
+            .nodeId(NodeIdStrategies.of(10, 42))
             .build();
 
         ID<A> id = gen.identifier();

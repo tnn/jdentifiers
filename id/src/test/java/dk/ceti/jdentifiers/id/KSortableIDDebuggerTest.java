@@ -52,8 +52,7 @@ class KSortableIDDebuggerTest {
 
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(stubClock())
-            .nodeBits(10)
-            .nodeId(42)
+            .nodeId(NodeIdStrategies.of(10, 42))
             .build();
 
         String actual = KSortableIDDebugger.debug(id, gen);
