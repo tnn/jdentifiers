@@ -8,8 +8,8 @@
 ADR-010 established that LID counter overflow throws `IllegalStateException`. The rationale was sound at the time:
 exhausting 4,096 values in one hour was assumed to indicate misuse.
 
-In practice, LIDs are used inside composite primary keys like `(tenant_id, team_lid)` or `(org_id, project_lid)`, where
-uniqueness is already enforced on the composite. Throwing from the generator is too eager: it refuses to produce a value
+In practice, LIDs are meant to be used inside composite primary keys like `(organization_id, team_id)`, where
+uniqueness is scoped. Throwing from the generator is too eager: it refuses to produce a value
 that the application may never persist, or that the DB would reject with a constraint violation anyway. And once it
 throws, the service can't generate LIDs again until the hour rolls over or the process restarts — a sharp failure mode
 for something the caller usually doesn't need protection against.

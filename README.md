@@ -4,7 +4,7 @@ Type-safe, k-sortable identifier library for Java.
 
 Phantom-typed wrappers around numeric values (`long`, `int`, `UUID`) that prevent mixing identifiers for different
 domain entities at compile time. Two generation strategies — random and k-sortable (time-sorted) — are hidden behind a
-common `IDGenerator` interface, so consuming code never knows or cares how an identifier was minted.
+common `IDGenerator` interface, so consuming code is unaware of how an identifier was generated.
 
 ```java
 ID<Organization> orgId  = generator.identifier();
@@ -18,7 +18,7 @@ service.getUser(orgId);
 
 | Type     | Storage        | Hex string  | Use case                                                                                                                                                                   |
 |----------|----------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `LID<T>` | 32-bit `int`   | 8 chars     | Locally scoped within a composite key, e.g. `(tenant_id, team_lid)`. Not globally unique.                                                                                  |
+| `LID<T>` | 32-bit `int`   | 8 chars     | Locally scoped within a composite key, e.g. `(organization_id, team_id)`. Not globally unique.                                                                             |
 | `ID<T>`  | 64-bit `long`  | 16 chars    | Entity primary key within a single system. Sufficient for the vast majority of workloads — Twitter's ~6,000 tweets/sec would take ~200 million years to exhaust the space. |
 | `GID<T>` | 128-bit `UUID` | UUID format | Globally unique across systems. Conforms to UUID v4 (random) or v7 (k-sortable).                                                                                           |
 
@@ -77,6 +77,43 @@ mvn -pl id,benchmarks package -DskipTests
 mvn -pl benchmarks exec:exec -Dbenchmark=IDGenerationBenchmark
 mvn -pl benchmarks exec:exec -Dbenchmark=IDStringBenchmark
 ```
+
+## Encoding and serialization
+
+`toString()` and `fromString()` on all three types use lowercase hex as the default text encoding. 
+`fromString()` accepts mixing / uppercased strings. The library has a single strategy on purpose, 
+although it does not prevent other formats such as Base32 or Base64. 
+
+**Why hex?**
+
+| Encoding | `LID` (32-bit) | `ID` (64-bit) | `GID` (128-bit) | Overhead  | Sort    | Notes                                                                  |
+|----------|----------------|---------------|-----------------|-----------|---------|------------------------------------------------------------------------|
+| Binary   | 4 bytes        | 8 bytes       | 16 bytes        | —         | Yes     | Best for storage, not usable in text protocols                         |
+| Base64   | 6 chars        | 11 chars      | 22 chars        | +38%      | No      | Less legible (`I`/`l`, `0`/`O`), may break double-click selection      |
+| Base32   | 7 chars        | 13 chars      | 26 chars        | +63%      | No      | Less legible depending on alphabet (`I`/`1`)                           |
+| **Hex**  | **8 chars**    | **16 chars**  | **32 chars**    | **+100%** | **Yes** | **Legible, universally parseable, double-click selectable**            |
+| Decimal  | 10 chars       | 20 chars      | 39 chars        | +150%     | Yes     | Longest; 64-bit values exceed JS `Number.MAX_SAFE_INTEGER`             |
+| UUID     | —              | —             | 36 chars        | +125%     | Yes     | Standard format for 128-bit; used by `GID.toString()`                  |
+
+Hex trades compactness for safety:
+
+- **Sort order is preserved.** Big-endian hex means `strcmp` gives the same result as unsigned
+  numeric comparison, so `ORDER BY id_hex` in a database text column sorts chronologically
+  (see [ADR-006](docs/adr/adr-006-big-endian-encoding.md)).
+- **No precision loss.** Decimal representations of 64-bit IDs exceed 2^53, which means any
+  JSON consumer backed by IEEE 754 doubles (JavaScript, Python's `json` module) will silently
+  round the value (this problem forced Twitter to ship `id_str` alongside `id`).
+  Hex strings round-trip through every JSON parser without loss.
+- **Legible.** Hex characters are easy to read aloud and can be selected with a double-click in
+  terminals and browsers. Base64 and Base32 use characters that look alike in many fonts and are
+  harder to communicate verbally. The tradeoff is a longer string.
+
+**Why one codec, not pluggable:** The `toString()`/`fromString()` contract is used by the
+Jackson and kotlinx-serialization modules, by logging, and by any code that stores IDs as
+strings. If different parts of a system disagree on the encoding, IDs become unparseable at
+the boundary. A single default eliminates that failure mode. If you need Base64 for `ID`, it
+is available via `toBase64String()`/`fromBase64String()`, but it is opt-in and not wired into
+the serialization modules.
 
 ---
 
@@ -153,13 +190,13 @@ LSB [63 ····································
 
 ### When NOT to use k-sortable LID
 
-K-sortable LID is appropriate only when all three conditions hold:
+K-sortable LID is appropriate only when:
 
 1. The LID is scoped within a composite key, so collisions are per-scope.
 2. The generation rate per scope is low (tens to hundreds per hour).
 3. Hour-precision ordering is sufficient.
 
-For high-throughput or globally-unique 32-bit needs, `RandomIDGenerator.localIdentifier()` is correct.
+For high-throughput or globally-unique 32-bit needs, `RandomIDGenerator.localIdentifier()` is preferable.
 
 ---
 
