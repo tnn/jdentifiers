@@ -40,6 +40,7 @@
     <module>jackson</module>
     <module>micronaut</module>
     <module>kotlinx-serialization</module>
+    <module>exposed</module>
   </modules>
 
   <properties>
@@ -55,6 +56,8 @@
     <jackson.version>2.21.2</jackson.version>
     <kotlin.version>2.2.20</kotlin.version>
     <kotlinx.serialization.version>1.11.0</kotlinx.serialization.version>
+    <exposed.version>1.2.0</exposed.version>
+    <h2.version>2.3.232</h2.version>
   </properties>
 
   <dependencyManagement>

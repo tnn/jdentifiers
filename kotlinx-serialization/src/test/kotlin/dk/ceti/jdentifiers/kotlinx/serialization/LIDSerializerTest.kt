@@ -23,12 +23,12 @@ class LIDSerializerTest {
     @Test
     fun `deserialize hex string to LID`() {
         val lid = json.decodeFromString(LIDSerializer, "\"6a677fc2\"")
-        assertEquals(1785167810, lid.toInteger())
+        assertEquals(1785167810, lid.asInt())
     }
 
     @Test
     fun `round-trip LID`() {
-        val original: LID<IDAble> = LID.fromInteger(-847366369)
+        val original: LID<IDAble> = LID.fromInt(-847366369)
         val encoded = json.encodeToString(LIDSerializer, original)
         val decoded = json.decodeFromString(LIDSerializer, encoded)
         assertEquals(original, decoded)

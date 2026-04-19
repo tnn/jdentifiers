@@ -47,7 +47,7 @@ public class IDStringBenchmark implements IDAble {
 
     @Benchmark
     public LID<IDAble> lid_32_bit_from_integer() {
-        return LID.fromInteger(2_047_483_647);
+        return LID.fromInt(2_047_483_647);
     }
 
     @Benchmark

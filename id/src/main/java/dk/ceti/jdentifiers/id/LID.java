@@ -32,7 +32,7 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
      * @param bits the raw 32-bit value
      * @return a new LID
      */
-    public static <T extends IDAble> LID<T> fromInteger(int bits) {
+    public static <T extends IDAble> LID<T> fromInt(int bits) {
         return new LID<>(bits);
     }
 
@@ -102,7 +102,7 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
      *
      * @return the raw bits
      */
-    public int toInteger() {
+    public int asInt() {
         return bits;
     }
 

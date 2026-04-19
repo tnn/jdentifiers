@@ -514,7 +514,7 @@ class KSortableIDGeneratorTest {
             .build();
 
         LID<A> lid = gen.localIdentifier();
-        int bits = lid.toInteger();
+        int bits = lid.asInt();
         long hoursSinceEpoch = Integer.toUnsignedLong(bits) >>> 12;
         assertEquals(1L, hoursSinceEpoch);
     }
@@ -548,7 +548,7 @@ class KSortableIDGeneratorTest {
 
         clock.advance(HOUR_MS); // advance to next hour
         LID<A> lid = gen.localIdentifier();
-        int counter = lid.toInteger() & 0xFFF;
+        int counter = lid.asInt() & 0xFFF;
         assertEquals(0, counter);
     }
 
@@ -605,9 +605,9 @@ class KSortableIDGeneratorTest {
         clock.advance(HOUR_MS);
         LID<A> lid = gen.localIdentifier();
         assertNotNull(lid);
-        int counter = lid.toInteger() & 0xFFF;
+        int counter = lid.asInt() & 0xFFF;
         assertEquals(0, counter, "Counter should reset to 0 in new hour");
-        long hours = Integer.toUnsignedLong(lid.toInteger()) >>> 12;
+        long hours = Integer.toUnsignedLong(lid.asInt()) >>> 12;
         assertEquals(2L, hours, "Should be in hour 2");
     }
 
@@ -698,7 +698,7 @@ class KSortableIDGeneratorTest {
         clock.set(DEFAULT_EPOCH_MS + HOUR_MS * 5);
 
         LID<A> lid = gen.localIdentifier(); // still hour 5, counter = 1
-        int counter = lid.toInteger() & 0xFFF;
+        int counter = lid.asInt() & 0xFFF;
         assertEquals(1, counter);
     }
 
@@ -729,7 +729,7 @@ class KSortableIDGeneratorTest {
             .build();
 
         LID<A> lid = gen.localIdentifier();
-        int bits = lid.toInteger();
+        int bits = lid.asInt();
         long hours = Integer.toUnsignedLong(bits) >>> 12;
         assertEquals(10L, hours);
     }
@@ -994,7 +994,7 @@ class KSortableIDGeneratorTest {
                     for (int i = 0; i < idsPerThread; i++) {
                         LID<A> lid = gen.localIdentifier();
                         threadIds.add(lid);
-                        allIds.add(lid.toInteger());
+                        allIds.add(lid.asInt());
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -1263,7 +1263,7 @@ class KSortableIDGeneratorTest {
             .build();
 
         LID<A> lid = gen.localIdentifier();
-        int bits = lid.toInteger();
+        int bits = lid.asInt();
         assertEquals(0, bits); // hour 0, counter 0
     }
 
@@ -1292,7 +1292,7 @@ class KSortableIDGeneratorTest {
         // 4097th call should wrap, not throw
         LID<A> lid = gen.localIdentifier();
         assertNotNull(lid);
-        int counter = lid.toInteger() & 0xFFF;
+        int counter = lid.asInt() & 0xFFF;
         assertEquals(0, counter, "Counter should wrap to 0");
     }
 
@@ -1311,7 +1311,7 @@ class KSortableIDGeneratorTest {
 
         // After wrap, counter is back at 0 — same value as the first LID
         LID<A> wrapped = gen.localIdentifier();
-        assertEquals(first.toInteger(), wrapped.toInteger(),
+        assertEquals(first.asInt(), wrapped.asInt(),
             "Wrapped LID should duplicate the first LID in the same hour"
         );
     }
@@ -1330,7 +1330,7 @@ class KSortableIDGeneratorTest {
 
         clock.advance(HOUR_MS);
         LID<A> lid = gen.localIdentifier();
-        int counter = lid.toInteger() & 0xFFF;
+        int counter = lid.asInt() & 0xFFF;
         assertEquals(0, counter, "Counter should reset to 0 in new hour");
     }
 
@@ -1413,7 +1413,7 @@ class KSortableIDGeneratorTest {
         // Every LID should have a valid 20-bit hour and 12-bit counter
         for (List<LID<A>> lids : perThreadIds) {
             for (LID<A> lid : lids) {
-                int counter = lid.toInteger() & 0xFFF;
+                int counter = lid.asInt() & 0xFFF;
                 assertTrue(counter >= 0 && counter <= 4095);
             }
         }

@@ -72,7 +72,7 @@ class KSortableIDDebuggerTest {
         // hoursSinceEpoch=5, counter=3
         // bits = (5 << 12) | 3 = 0x5003
         // unixMs = 5 * 3_600_000 + DEFAULT_EPOCH_MS → 2020-01-01T05:00:00Z
-        LID<?> lid = LID.fromInteger(0x00005003);
+        LID<?> lid = LID.fromInt(0x00005003);
 
         String actual = KSortableIDDebugger.debugLid(lid, DEFAULT_EPOCH_MS);
 
@@ -88,7 +88,7 @@ class KSortableIDDebuggerTest {
         // hoursSinceEpoch=10, counter=0
         // bits = (10 << 12) = 0xA000
         Instant customEpoch = Instant.parse("2024-01-01T00:00:00Z");
-        LID<?> lid = LID.fromInteger(0x0000A000);
+        LID<?> lid = LID.fromInt(0x0000A000);
 
         KSortableIDGenerator gen = KSortableIDGenerator.builder()
             .clock(stubClock())

@@ -35,7 +35,7 @@ class LIDTest {
     void should_get_user_id_from_string() {
         final LID<A> id = LID.fromString("6a677fc2");
         assertNotNull(id);
-        assertEquals(1785167810, id.toInteger());
+        assertEquals(1785167810, id.asInt());
     }
 
     @Test
@@ -56,21 +56,21 @@ class LIDTest {
 
     @Test
     void should_be_able_to_get_user_id_from_long() {
-        final LID<A> id = LID.fromInteger(-847366369);
+        final LID<A> id = LID.fromInt(-847366369);
         assertNotNull(id);
-        assertEquals(-847366369, id.toInteger());
+        assertEquals(-847366369, id.asInt());
     }
 
     @Test
     void should_be_able_to_id_hex_string_representation() {
-        final String id = LID.fromInteger(-847366369).toString();
+        final String id = LID.fromInt(-847366369).toString();
         assertNotNull(id);
         assertEquals("cd7e371f", id);
     }
 
     @Test
     void lower_than_min_integer_should_wrap_around() {
-        assertEquals(-2147483647, LID.fromString("80000001").toInteger());
+        assertEquals(-2147483647, LID.fromString("80000001").asInt());
     }
 
     @Test
@@ -131,7 +131,7 @@ class LIDTest {
 
     @Test
     void java_serialization_round_trip() throws Exception {
-        final LID<A> original = LID.fromInteger(1785167810);
+        final LID<A> original = LID.fromInt(1785167810);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         new ObjectOutputStream(baos).writeObject(original);
         LID<?> deserialized = (LID<?>) new ObjectInputStream(
@@ -141,10 +141,10 @@ class LIDTest {
 
     @Test
     void collections_sort_unsigned_ordering() {
-        final LID<A> zero = LID.fromInteger(0);
-        final LID<A> mid = LID.fromInteger(Integer.MAX_VALUE);
-        final LID<A> high = LID.fromInteger(Integer.MIN_VALUE);
-        final LID<A> max = LID.fromInteger(-1);
+        final LID<A> zero = LID.fromInt(0);
+        final LID<A> mid = LID.fromInt(Integer.MAX_VALUE);
+        final LID<A> high = LID.fromInt(Integer.MIN_VALUE);
+        final LID<A> max = LID.fromInt(-1);
 
         List<LID<A>> list = new ArrayList<>(List.of(max, zero, high, mid));
         Collections.sort(list);
@@ -153,20 +153,20 @@ class LIDTest {
 
     @Test
     void collections_sort_wildcard_list() {
-        final LID<A> a = LID.fromInteger(2);
-        final LID<B> b = LID.fromInteger(1);
+        final LID<A> a = LID.fromInt(2);
+        final LID<B> b = LID.fromInt(1);
 
         List<LID<?>> list = new ArrayList<>();
         list.add(a);
         list.add(b);
         Collections.sort(list);
-        assertEquals(1, list.get(0).toInteger());
+        assertEquals(1, list.get(0).asInt());
     }
 
     @Test
     void can_cast_between_ids() {
         LID<A> a = generator.localIdentifier();
-        LID<B> b = LID.fromInteger(a.toInteger());
+        LID<B> b = LID.fromInt(a.asInt());
         assertEquals(a, LID.cast(b));
     }
 
@@ -187,24 +187,24 @@ class LIDTest {
     @ParameterizedTest
     @MethodSource("boundaryValues")
     void toString_pinned_boundary_values(int value, String expectedHex) {
-        assertEquals(expectedHex, LID.fromInteger(value).toString());
+        assertEquals(expectedHex, LID.fromInt(value).toString());
     }
 
     @ParameterizedTest
     @MethodSource("boundaryValues")
     void fromString_pinned_boundary_values(int expectedValue, String hex) {
-        assertEquals(expectedValue, LID.<A>fromString(hex).toInteger());
+        assertEquals(expectedValue, LID.<A>fromString(hex).asInt());
     }
 
     @ParameterizedTest
     @MethodSource("boundaryValues")
     void toString_always_8_chars(int value, String expectedHex) {
-        assertEquals(8, LID.fromInteger(value).toString().length());
+        assertEquals(8, LID.fromInt(value).toString().length());
     }
 
     @Test
     void toString_output_is_always_lowercase() {
-        String hex = LID.fromInteger(0xABCDEF01).toString();
+        String hex = LID.fromInt(0xABCDEF01).toString();
         assertEquals(hex, hex.toLowerCase());
     }
 
@@ -229,7 +229,7 @@ class LIDTest {
     void fromString_accepts_StringBuilder() {
         StringBuilder sb = new StringBuilder("6a677fc2");
         LID<A> id = LID.fromString(sb);
-        assertEquals(1785167810, id.toInteger());
+        assertEquals(1785167810, id.asInt());
     }
 
 
@@ -237,7 +237,7 @@ class LIDTest {
     void parse_valid_hex() {
         var result = LID.<A>parse("000000ff");
         assertTrue(result.isPresent());
-        assertEquals(255, result.get().toInteger());
+        assertEquals(255, result.get().asInt());
     }
 
     @Test
