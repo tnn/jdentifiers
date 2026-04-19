@@ -237,7 +237,7 @@ class LIDTest {
     void parse_valid_hex() {
         var result = LID.<A>parse("000000ff");
         assertTrue(result.isPresent());
-        assertEquals(255, result.get().toInteger());
+        assertEquals(255, result.get().asInt());
     }
 
     @Test
