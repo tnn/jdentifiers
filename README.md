@@ -1,5 +1,9 @@
 # Jdentifiers
 
+[![Maven Central](https://img.shields.io/maven-central/v/dk.ceti.jdentifiers/jdentifiers-id)](https://central.sonatype.com/artifact/dk.ceti.jdentifiers/jdentifiers-id)
+[![javadoc](https://javadoc.io/badge2/dk.ceti.jdentifiers/jdentifiers-id/javadoc.svg)](https://javadoc.io/doc/dk.ceti.jdentifiers/jdentifiers-id)
+[![License](https://img.shields.io/github/license/tnn/jdentifiers)](LICENSE)
+
 Type-safe, k-sortable identifier library for Java.
 
 Phantom-typed wrappers around numeric values (`long`, `int`, `UUID`) that prevent mixing identifiers for different

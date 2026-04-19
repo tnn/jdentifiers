@@ -11,6 +11,7 @@
 
   <artifactId>jdentifiers-benchmarks</artifactId>
   <name>Jdentifiers :: Benchmarks</name>
+  <description>JMH latency and throughput benchmarks</description>
 
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>
@@ -20,9 +21,16 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <configuration>
+          <skipPublishing>true</skipPublishing>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.6.2</version>
         <executions>
           <execution>
             <phase>package</phase>

@@ -11,5 +11,6 @@
 
   <artifactId>jdentifiers-id</artifactId>
   <name>Jdentifiers :: Identifiers</name>
+  <description>Phantom-typed ID, LID and GID wrappers with k-sortable and random generation strategies</description>
 
 </project>
