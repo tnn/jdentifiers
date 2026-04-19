@@ -276,6 +276,29 @@ class IDTest {
         assertEquals(7667237365815304694L, id.asLong());
     }
 
+
+    @Test
+    void parse_valid_hex() {
+        var result = ID.<A>parse("00000000000000ff");
+        assertTrue(result.isPresent());
+        assertEquals(255L, result.get().asLong());
+    }
+
+    @Test
+    void parse_invalid_hex() {
+        assertTrue(ID.parse("not-valid").isEmpty());
+    }
+
+    @Test
+    void parse_null() {
+        assertTrue(ID.parse(null).isEmpty());
+    }
+
+    @Test
+    void parse_empty() {
+        assertTrue(ID.parse("").isEmpty());
+    }
+
     private static final class A implements IDAble {
     }
 

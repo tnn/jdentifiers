@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Locally scoped 32-bit identifier stored as an unsigned {@code int}.
@@ -62,6 +63,26 @@ public class LID<T extends IDAble> implements Serializable, Comparable<LID<?>> {
         bits |= HexCodec.getHexValue(idSequence.charAt(7));
 
         return new LID<>(bits);
+    }
+
+    /**
+     * Parses a hex string, returning empty if the input is null, malformed,
+     * or not the expected length. Unlike {@link #fromString(CharSequence)},
+     * this method never throws.
+     *
+     * @param <T>        the entity type
+     * @param idSequence 8-character lowercase hex string, or null
+     * @return the parsed LID, or empty
+     */
+    public static <T extends IDAble> Optional<LID<T>> parse(CharSequence idSequence) {
+        try {
+            if (idSequence == null) {
+                return Optional.empty();
+            }
+            return Optional.of(fromString(idSequence));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     /**
