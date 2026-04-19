@@ -9,7 +9,7 @@ its generation strategy.
 
 ## Decision
 
-`ID`, `LID`, and `GID` are opaque wrappers around a numeric value. They expose `fromLong`/`fromInteger`/`fromUuid`
+`ID`, `LID`, and `GID` are opaque wrappers around a numeric value. They expose `fromLong`/`fromInt`/`fromUuid`
 factory methods and corresponding accessors. All bit-layout knowledge lives in `IDGenerator` implementations. The types
 do not know — and cannot know — whether their bits came from `RandomIDGenerator`, `KSortableIDGenerator`, or were
 deserialized from a database column.

@@ -106,7 +106,7 @@ public final class KSortableIDDebugger {
      * @return human-readable debug string
      */
     public static String debugLid(LID<?> lid, long epochMs) {
-        int bits = lid.toInteger();
+        int bits = lid.asInt();
 
         long hoursSinceEpoch = Integer.toUnsignedLong(bits) >>> KSortableIDGenerator.LID_COUNTER_BITS;
 

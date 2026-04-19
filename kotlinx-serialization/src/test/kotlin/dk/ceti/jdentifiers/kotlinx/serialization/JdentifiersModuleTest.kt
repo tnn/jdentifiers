@@ -59,7 +59,7 @@ class JdentifiersModuleTest {
         val entity = json.decodeFromString(Entity.serializer(), jsonStr)
         assertEquals(7667237365815304694L, entity.id.asLong())
         assertEquals(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), entity.gid.asUUID())
-        assertEquals(1785167810, entity.lid.toInteger())
+        assertEquals(1785167810, entity.lid.asInt())
     }
 
     @Test
@@ -102,7 +102,7 @@ class JdentifiersModuleTest {
         )
         assertEquals(7667237365815304694L, entity.id!!.asLong())
         assertEquals(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), entity.gid!!.asUUID())
-        assertEquals(1785167810, entity.lid!!.toInteger())
+        assertEquals(1785167810, entity.lid!!.asInt())
     }
 
     @Test

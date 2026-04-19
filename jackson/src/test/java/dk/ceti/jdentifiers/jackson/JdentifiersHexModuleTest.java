@@ -113,7 +113,7 @@ class JdentifiersHexModuleTest {
     @Test
     void deserializeValidLID() throws JsonProcessingException {
         LID<?> lid = mapper.readValue("\"6a677fc2\"", LID.class);
-        assertEquals(0x6a677fc2, lid.toInteger());
+        assertEquals(0x6a677fc2, lid.asInt());
     }
 
     @Test

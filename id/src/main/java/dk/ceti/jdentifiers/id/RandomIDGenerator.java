@@ -21,7 +21,7 @@ public class RandomIDGenerator implements IDGenerator {
 
     @Override
     public <T extends IDAble> LID<T> localIdentifier() {
-        return LID.fromInteger(numberGenerator.nextInt());
+        return LID.fromInt(numberGenerator.nextInt());
     }
 
     @Override

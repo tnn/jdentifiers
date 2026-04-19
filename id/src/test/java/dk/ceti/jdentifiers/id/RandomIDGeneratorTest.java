@@ -69,7 +69,7 @@ class RandomIDGeneratorTest {
         Set<Integer> seen = new HashSet<>();
         for (int i = 0; i < 1_000; i++) {
             LID<TestEntity> lid = generator.localIdentifier();
-            seen.add(lid.toInteger());
+            seen.add(lid.asInt());
         }
         assertEquals(1_000, seen.size());
     }

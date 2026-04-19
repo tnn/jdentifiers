@@ -348,7 +348,7 @@ public class KSortableIDGenerator implements IDGenerator {
             lastLidHour = hoursSinceEpoch;
 
             int bits = (int) ((hoursSinceEpoch << LID_COUNTER_BITS) | lidCounter);
-            return LID.fromInteger(bits);
+            return LID.fromInt(bits);
         }
     }
 
