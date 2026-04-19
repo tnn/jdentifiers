@@ -11,10 +11,23 @@
 
   <artifactId>jdentifiers-micronaut</artifactId>
   <name>Jdentifiers :: Micronaut adapters</name>
+  <description>Micronaut TypeConverter bindings for ID, LID and GID</description>
 
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>
     <maven.install.skip>true</maven.install.skip>
   </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <configuration>
+          <skipPublishing>true</skipPublishing>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

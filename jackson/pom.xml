@@ -11,6 +11,7 @@
 
   <artifactId>jdentifiers-jackson</artifactId>
   <name>Jdentifiers :: Jackson adapters</name>
+  <description>Jackson serializers and deserializers for ID, LID and GID</description>
 
   <build>
     <plugins>

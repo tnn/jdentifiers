@@ -11,6 +11,7 @@
 
   <artifactId>jdentifiers-kotlinx-serialization</artifactId>
   <name>Jdentifiers :: Kotlinx serialization adapters</name>
+  <description>kotlinx-serialization KSerializer implementations for ID, LID and GID</description>
 
   <dependencies>
     <dependency>
