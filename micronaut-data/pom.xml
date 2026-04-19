@@ -9,9 +9,9 @@
     <version>0.3.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>jdentifiers-micronaut</artifactId>
-  <name>Jdentifiers :: Micronaut adapters</name>
-  <description>Micronaut TypeConverter bindings for ID, LID and GID</description>
+  <artifactId>jdentifiers-micronaut-data</artifactId>
+  <name>Jdentifiers :: Micronaut Data adapters</name>
+  <description>Micronaut Data AttributeConverters and meta-annotations for ID, LID and GID</description>
 
   <dependencies>
     <dependency>
@@ -19,9 +19,9 @@
       <artifactId>jdentifiers-id</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.micronaut</groupId>
-      <artifactId>micronaut-core</artifactId>
-      <version>${micronaut.version}</version>
+      <groupId>io.micronaut.data</groupId>
+      <artifactId>micronaut-data-model</artifactId>
+      <version>${micronaut-data.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

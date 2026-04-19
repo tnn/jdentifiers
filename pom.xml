@@ -39,6 +39,7 @@
     <module>benchmarks</module>
     <module>jackson</module>
     <module>micronaut</module>
+    <module>micronaut-data</module>
     <module>kotlinx-serialization</module>
     <module>exposed</module>
   </modules>
@@ -57,6 +58,8 @@
     <kotlin.version>2.2.20</kotlin.version>
     <kotlinx.serialization.version>1.11.0</kotlinx.serialization.version>
     <exposed.version>1.2.0</exposed.version>
+    <micronaut.version>4.10.21</micronaut.version>
+    <micronaut-data.version>4.14.3</micronaut-data.version>
     <h2.version>2.3.232</h2.version>
   </properties>
 
