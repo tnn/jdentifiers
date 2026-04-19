@@ -232,6 +232,29 @@ class LIDTest {
         assertEquals(1785167810, id.toInteger());
     }
 
+
+    @Test
+    void parse_valid_hex() {
+        var result = LID.<A>parse("000000ff");
+        assertTrue(result.isPresent());
+        assertEquals(255, result.get().toInteger());
+    }
+
+    @Test
+    void parse_invalid_hex() {
+        assertTrue(LID.parse("zzzz").isEmpty());
+    }
+
+    @Test
+    void parse_null() {
+        assertTrue(LID.parse(null).isEmpty());
+    }
+
+    @Test
+    void parse_empty() {
+        assertTrue(LID.parse("").isEmpty());
+    }
+
     private static final class A implements IDAble {
     }
 

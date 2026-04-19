@@ -199,4 +199,27 @@ class GIDTest {
         assertEquals(UUID_A, gids.get(0).asUUID());
         assertEquals(UUID_B, gids.get(1).asUUID());
     }
+
+
+    @Test
+    void parse_valid_uuid() {
+        var result = GID.<User>parse("01234567-89ab-7def-8123-456789abcdef");
+        assertTrue(result.isPresent());
+        assertEquals("01234567-89ab-7def-8123-456789abcdef", result.get().toString());
+    }
+
+    @Test
+    void parse_invalid_string() {
+        assertTrue(GID.parse("not-a-uuid").isEmpty());
+    }
+
+    @Test
+    void parse_null() {
+        assertTrue(GID.parse(null).isEmpty());
+    }
+
+    @Test
+    void parse_empty() {
+        assertTrue(GID.parse("").isEmpty());
+    }
 }

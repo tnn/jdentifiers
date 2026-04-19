@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -44,6 +45,26 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
     public static <R extends IDAble> GID<R> fromString(CharSequence gidStr) {
         Objects.requireNonNull(gidStr, "gidStr must not be null");
         return new GID<>(UUID.fromString(gidStr.toString()));
+    }
+
+    /**
+     * Parses a UUID string, returning empty if the input is null or
+     * malformed. Unlike {@link #fromString(CharSequence)}, this method
+     * never throws.
+     *
+     * @param <T>    the entity type
+     * @param gidStr UUID string, or null
+     * @return the parsed GID, or empty
+     */
+    public static <T extends IDAble> Optional<GID<T>> parse(CharSequence gidStr) {
+        try {
+            if (gidStr == null) {
+                return Optional.empty();
+            }
+            return Optional.of(fromString(gidStr));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 64-bit identifier stored as an unsigned {@code long}.
@@ -84,6 +85,26 @@ public class ID<T extends IDAble> implements Serializable, Comparable<ID<?>> {
         bits |= (long) HexCodec.getHexValue(idSequence.charAt(15));
 
         return new ID<>(bits);
+    }
+
+    /**
+     * Parses a hex string, returning empty if the input is null, malformed,
+     * or not the expected length. Unlike {@link #fromString(CharSequence)},
+     * this method never throws.
+     *
+     * @param <T>        the entity type
+     * @param idSequence 16-character lowercase hex string, or null
+     * @return the parsed ID, or empty
+     */
+    public static <T extends IDAble> Optional<ID<T>> parse(CharSequence idSequence) {
+        try {
+            if (idSequence == null) {
+                return Optional.empty();
+            }
+            return Optional.of(fromString(idSequence));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     /**
