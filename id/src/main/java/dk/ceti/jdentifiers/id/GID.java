@@ -2,6 +2,7 @@ package dk.ceti.jdentifiers.id;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -237,6 +238,26 @@ public class GID<T extends IDAble> implements Comparable<GID<?>>, Serializable {
     @Override
     public String toString() {
         return uuid.toString();
+    }
+
+    /**
+     * Returns the 128 bits as 32 lowercase hex characters without dashes, the form a
+     * W3C {@code traceparent} trace-id uses. {@link #parseLenient} reads it back.
+     *
+     * @return the dashless hex form
+     */
+    public String toHexString() {
+        final byte[] hexChars = new byte[GID_HEX_LENGTH];
+        writeHex(uuid.getMostSignificantBits(), hexChars, 0);
+        writeHex(uuid.getLeastSignificantBits(), hexChars, GID_HEX_LENGTH / 2);
+        return new String(hexChars, StandardCharsets.ISO_8859_1);
+    }
+
+    private static void writeHex(long bits, byte[] hexChars, int offset) {
+        for (int i = GID_HEX_LENGTH / 2 - 1; i >= 0; i--) {
+            hexChars[offset + i] = HexCodec.HEX_DIGITS[(int) (bits & 0xF)];
+            bits >>>= 4;
+        }
     }
 
 }

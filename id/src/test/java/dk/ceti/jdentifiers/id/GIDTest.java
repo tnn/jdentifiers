@@ -95,6 +95,25 @@ class GIDTest {
     }
 
     @Test
+    void toHexString_returns_the_dashless_lowercase_hex() {
+        final GID<User> gid = GID.fromUuid(UUID_A);
+        assertEquals("550e8400e29b41d4a716446655440000", gid.toHexString());
+    }
+
+    @Test
+    void toHexString_keeps_leading_zeros_and_the_high_bit() {
+        assertEquals("00000000000000010000000000000002", GID.fromUuid(new UUID(1L, 2L)).toHexString());
+        assertEquals("ffffffffffffffff8000000000000000", GID.fromUuid(new UUID(-1L, Long.MIN_VALUE)).toHexString());
+    }
+
+    @Test
+    void toHexString_round_trips_through_parseLenient() {
+        final GID<User> gid = GID.<User>parseLenient("0af7651916cd43dd8448eb211c80319c").orElseThrow();
+        assertEquals("0af7651916cd43dd8448eb211c80319c", gid.toHexString());
+        assertEquals(gid, GID.parseLenient(gid.toHexString()).orElseThrow());
+    }
+
+    @Test
     void cast_preserves_value() {
         final GID<User> user = GID.fromUuid(UUID_A);
         final GID<Organization> org = GID.cast(user);
